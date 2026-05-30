@@ -509,6 +509,33 @@ footer span{color:var(--muted)}
 /* ── SCROLL PROGRESS BAR ── törléséhez: CSS + div#scroll-bar + JS scroll listener ── */
 #scroll-bar{position:fixed;top:0;left:0;height:1px;width:0%;background:#ffffff;z-index:9998;transition:width .08s linear;pointer-events:none}
 
+
+/* ── SUPPORT MODAL ──────────────────────────────── */
+.support-card{position:relative;overflow:visible!important}
+.support-info-btn{position:absolute;top:.75rem;right:.75rem;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:var(--muted3);font-size:11px;font-weight:700;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;font-style:italic;font-family:Georgia,serif;transition:background .2s,color .2s;z-index:2}
+.support-info-btn:hover{background:rgba(255,255,255,.18);color:#fff}
+.support-modal{display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);align-items:center;justify-content:center}
+.support-modal.open{display:flex}
+.support-modal-inner{background:#111;border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:1.5rem 1.5rem 1.2rem;min-width:260px;max-width:340px;position:relative;box-shadow:0 16px 60px rgba(0,0,0,.7)}
+.support-modal-close{position:absolute;top:.5rem;right:.8rem;background:none;border:none;color:var(--muted2);font-size:1.4rem;cursor:pointer;line-height:1;transition:color .15s;padding:4px}
+.support-modal-close:hover{color:#fff}
+.support-modal-title{font-size:13px;font-weight:700;color:#fff;margin-bottom:1rem;letter-spacing:.02em}
+.popup-emotes{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:.9rem}
+.popup-emote{width:38px;height:38px;border-radius:10px;background:rgba(145,71,255,.1);border:1px solid rgba(145,71,255,.2);display:flex;align-items:center;justify-content:center;font-size:1.3rem}
+.popup-benefits{margin:0;padding:0 0 0 1rem;display:flex;flex-direction:column;gap:5px}
+.popup-benefits li{font-size:12px;color:var(--muted3);line-height:1.5}
+.popup-icon-grid{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;padding:.5rem 0}
+.popup-icon-btn{width:48px;height:48px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;text-decoration:none;transition:background .15s,transform .15s;cursor:pointer}
+.popup-icon-btn:hover{background:rgba(255,255,255,.12);transform:scale(1.1)}
+.popup-share-url{text-align:center;font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;margin-top:.6rem;letter-spacing:.05em}
+
+/* ── SETUP TABS ─────────────────────────────────── */
+.setup-tabs{display:flex;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap}
+.setup-tab{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:8px 18px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:var(--muted2);cursor:pointer;transition:all .2s}
+.setup-tab:hover{color:var(--text);border-color:rgba(255,255,255,.18)}
+.setup-tab.active{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.25);color:var(--text);box-shadow:0 0 12px rgba(255,255,255,.08)}
+.setup-panel{display:none}
+.setup-panel.active{display:block}
 </style>
 </head>
 <body>
@@ -842,18 +869,43 @@ footer span{color:var(--muted)}
   <div class="section-inner">
     <p class="section-eyebrow">Felszerelés</p>
     <h2 class="section-heading">Setup</h2>
-    <div class="setup-grid">
-      <div class="setup-card"><div class="setup-cat">Laptop</div><div class="setup-item">Gaming Laptop</div><div class="setup-detail">Asztali gép helyett laptoppal streammelek</div></div>
-      <div class="setup-card"><div class="setup-cat">CPU</div><div class="setup-item">Intel Core i7-13620H</div><div class="setup-detail">13th Gen, 10 mag / 16 szál</div></div>
-      <div class="setup-card"><div class="setup-cat">RAM</div><div class="setup-item">16 GB</div><div class="setup-detail">DDR5 memória</div></div>
-      <div class="setup-card"><div class="setup-cat">GPU</div><div class="setup-item">RTX 4060 Laptop</div><div class="setup-detail">NVIDIA GeForce RTX 4060 Laptop GPU 8GB</div></div>
-      <div class="setup-card"><div class="setup-cat">iGPU</div><div class="setup-item">Intel UHD Graphics</div><div class="setup-detail">Intel UHD Graphics 8GB</div></div>
-      <div class="setup-card"><div class="setup-cat">Monitor</div><div class="setup-item">Samsung G30D 24"</div><div class="setup-detail">1080p, 180Hz, 1ms, VA panel</div></div>
-      <div class="setup-card"><div class="setup-cat">Billentyűzet</div><div class="setup-item">Magegee SKY87</div><div class="setup-detail">Red & Black, RGB, Akko V3 Creamy Yellow Switch</div></div>
-      <div class="setup-card"><div class="setup-cat">Egér</div><div class="setup-item">Logitech G502 Hero</div><div class="setup-detail">25K Hero szenzor, 11 programozható gomb</div></div>
-      <div class="setup-card"><div class="setup-cat">Headset</div><div class="setup-item">SteelSeries Arctis Nova 5</div><div class="setup-detail">Wireless gaming headset</div></div>
-      <div class="setup-card"><div class="setup-cat">Szoftver</div><div class="setup-item">OBS Studio</div><div class="setup-detail">Stream szoftver</div></div>
+
+    <!-- Setup fülek -->
+    <div class="setup-tabs">
+      <button class="setup-tab active" onclick="switchSetupTab('laptop',this)">💻 Laptop</button>
+      <button class="setup-tab" onclick="switchSetupTab('periph',this)">🖱️ Perifériák</button>
+      <button class="setup-tab" onclick="switchSetupTab('software',this)">⚙️ Szoftverek</button>
     </div>
+
+    <!-- Laptop -->
+    <div class="setup-panel active" id="setup-laptop">
+      <div class="setup-grid">
+        <div class="setup-card"><div class="setup-cat">Laptop</div><div class="setup-item">Gaming Laptop</div><div class="setup-detail">Asztali gép helyett laptoppal streammelek</div></div>
+        <div class="setup-card"><div class="setup-cat">CPU</div><div class="setup-item">Intel Core i7-13620H</div><div class="setup-detail">13th Gen, 10 mag / 16 szál</div></div>
+        <div class="setup-card"><div class="setup-cat">GPU</div><div class="setup-item">RTX 4060 Laptop</div><div class="setup-detail">NVIDIA GeForce RTX 4060 Laptop GPU 8GB</div></div>
+        <div class="setup-card"><div class="setup-cat">iGPU</div><div class="setup-item">Intel UHD Graphics</div><div class="setup-detail">Integrált grafika</div></div>
+        <div class="setup-card"><div class="setup-cat">RAM</div><div class="setup-item">16 GB DDR5</div><div class="setup-detail">Nagy sebességű memória</div></div>
+      </div>
+    </div>
+
+    <!-- Perifériák -->
+    <div class="setup-panel" id="setup-periph">
+      <div class="setup-grid">
+        <div class="setup-card"><div class="setup-cat">Monitor</div><div class="setup-item">Samsung G30D 24"</div><div class="setup-detail">1080p, 180Hz, 1ms, VA panel</div></div>
+        <div class="setup-card"><div class="setup-cat">Billentyűzet</div><div class="setup-item">Magegee SKY87</div><div class="setup-detail">Red & Black, RGB, Akko V3 Creamy Yellow Switch</div></div>
+        <div class="setup-card"><div class="setup-cat">Egér</div><div class="setup-item">Logitech G502 Hero</div><div class="setup-detail">25K Hero szenzor, 11 programozható gomb</div></div>
+        <div class="setup-card"><div class="setup-cat">Headset</div><div class="setup-item">SteelSeries Arctis Nova 5</div><div class="setup-detail">Wireless gaming headset</div></div>
+      </div>
+    </div>
+
+    <!-- Szoftverek -->
+    <div class="setup-panel" id="setup-software">
+      <div class="setup-grid">
+        <div class="setup-card"><div class="setup-cat">Stream</div><div class="setup-item">OBS Studio</div><div class="setup-detail">Ingyenes, nyílt forráskódú stream és felvétel szoftver</div></div>
+        <div class="setup-card"><div class="setup-cat">Videóvágás</div><div class="setup-item">DaVinci Resolve</div><div class="setup-detail">Professzionális videószerkesztő — ingyenes verzió</div></div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -863,52 +915,30 @@ footer span{color:var(--muted)}
     <p class="section-eyebrow">Támogatás</p>
     <h2 class="section-heading">Támogass!</h2>
     <div class="support-grid">
-      <a href="https://www.twitch.tv/MrMooris_/subscribe" target="_blank" class="support-card" onclick="togglePopup(event,'popup-twitch')">
+
+      <!-- Twitch Sub -->
+      <a href="https://www.twitch.tv/MrMooris_/subscribe" target="_blank" class="support-card">
         <div class="support-icon"><svg viewBox="0 0 24 24" fill="#9147ff"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg></div>
         <div class="support-name">Twitch Feliratkozás</div>
         <div class="support-desc">Twitch sub-bal egyedi emotokat és badge-et kapsz.</div>
-        <div class="support-popup" id="popup-twitch">
-          <div class="popup-title">Sub előnyök</div>
-          <div class="popup-emotes">
-            <div class="popup-emote">😸</div>
-            <div class="popup-emote">🎮</div>
-            <div class="popup-emote">👑</div>
-            <div class="popup-emote">⚔️</div>
-          </div>
-          <div class="popup-note">Egyedi emote-ok, exkluzív sub badge, ad-mentes nézés és közvetlen csatorna támogatás.</div>
-        </div>
+        <button class="support-info-btn" onclick="openSupportPopup(event,'smodal-twitch')">i</button>
       </a>
+
+      <!-- Ko-fi -->
       <a href="https://ko-fi.com/mooris" target="_blank" class="support-card">
         <div class="support-icon"><svg viewBox="0 0 24 24" fill="#FF5E5B" width="22" height="22"><path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267-.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.011 3.976-4.011 3.976s-.121.119-.31.023c-.076-.057-.108-.09-.108-.09-.443-.441-3.368-3.049-4.034-3.954-.709-.965-1.041-2.7-.091-3.71.951-1.01 3.005-1.086 4.363.407 0 0 1.565-1.782 3.468-.963 1.904.82 1.832 3.011.723 4.311zm6.173.478c-.928.116-1.682.028-1.682.028V7.284h1.77s1.971.551 1.971 2.638c0 1.913-.985 2.667-2.059 3.015z"/></svg></div>
         <div class="support-name">Ko-fi Donation</div>
         <div class="support-desc">Ha tetszik amit csinálok, egy Ko-fi sokat segít — jobb mikrofon, jobb setup, jobb stream.</div>
       </a>
-            <div class="support-card" style="cursor:pointer" onclick="togglePopup(event,'popup-follow')">
+
+      <!-- Követés -->
+      <div class="support-card" style="cursor:default">
         <div class="support-icon"><svg viewBox="0 0 24 24" fill="#ffffff" width="22" height="22"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg></div>
         <div class="support-name">Követés & Megosztás</div>
         <div class="support-desc">Kövess minden platformon vagy ahol csak szeretnéd, és ha van egy barátod akinek tetszene — küldd el a linket!</div>
-        <div class="support-popup" id="popup-follow">
-          <div class="popup-title">Platformok</div>
-          <div class="popup-platforms">
-            <a href="https://www.twitch.tv/MrMooris_" target="_blank" class="popup-platform-link">
-              <svg viewBox="0 0 24 24" fill="#9147ff" width="16" height="16"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
-              twitch.tv/MrMooris_
-            </a>
-            <a href="https://www.youtube.com/@MrMooris" target="_blank" class="popup-platform-link">
-              <svg viewBox="0 0 24 24" fill="#ff0033" width="16" height="16"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-              youtube.com/@MrMooris
-            </a>
-            <a href="https://kick.com/mrmooriss" target="_blank" class="popup-platform-link">
-              <svg viewBox="0 0 24 24" fill="#53fc18" width="16" height="16"><path d="M2 2v20h4v-6l2 2 6 4h5l-8-8 8-8h-5l-6 4-2 2V2H2z"/></svg>
-              kick.com/mrmooriss
-            </a>
-            <a href="https://www.tiktok.com/@mooris__" target="_blank" class="popup-platform-link">
-              <svg viewBox="0 0 24 24" fill="#ffffff" width="16" height="16"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.78a8.18 8.18 0 004.78 1.52V6.85a4.83 4.83 0 01-1.01-.16z"/></svg>
-              tiktok.com/@mooris__
-            </a>
-          </div>
-        </div>
+        <button class="support-info-btn" onclick="openSupportPopup(event,'smodal-follow')">i</button>
       </div>
+
     </div>
   </div>
 </div>
@@ -959,6 +989,29 @@ var schedule = JSON.parse(localStorage.getItem('mooris-schedule') || 'null') || 
 schedule = schedule.map(function(d){ return Object.assign({platforms:[]}, d); });
 
 // ── Navigáció ────────────────────────────────────
+
+// ── SUPPORT MODALS ────────────────────────────────
+function openSupportPopup(e,id){e.preventDefault();e.stopPropagation();document.getElementById(id).classList.add('open');}
+function closeSupportPopup(id){document.getElementById(id).classList.remove('open');}
+function shareWebsite(){
+  var url='https://mrmooris.github.io/website/';
+  if(navigator.share){navigator.share({title:'Mooris',url:url});}
+  else{navigator.clipboard.writeText(url).then(function(){alert('Link másolva!');});}
+}
+document.addEventListener('click',function(e){
+  document.querySelectorAll('.support-modal.open').forEach(function(m){
+    if(e.target===m)m.classList.remove('open');
+  });
+});
+
+
+function switchSetupTab(tab, el){
+  document.querySelectorAll('.setup-panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.setup-tab').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('setup-'+tab).classList.add('active');
+  el.classList.add('active');
+}
+
 function showSection(id, el) {
   document.querySelectorAll('.page-section').forEach(function(s){ s.classList.remove('active'); s.style.display=''; });
   var target = document.getElementById('sec-' + id);
@@ -1810,5 +1863,53 @@ function closeCrew(){
 renderCrew();
 </script>
 
+
+<div
+<div
+
+<!-- SUPPORT MODALS -->
+<div class="support-modal" id="smodal-twitch">
+  <div class="support-modal-inner">
+    <button class="support-modal-close" onclick="closeSupportPopup('smodal-twitch')">×</button>
+    <div class="support-modal-title">🟣 Twitch Sub előnyök</div>
+    <div class="popup-emotes">
+      <div class="popup-emote">😸</div>
+      <div class="popup-emote">🎮</div>
+      <div class="popup-emote">👑</div>
+      <div class="popup-emote">⚔️</div>
+    </div>
+    <ul class="popup-benefits">
+      <li>Egyedi csatorna emote-ok</li>
+      <li>Exkluzív sub badge</li>
+      <li>Ad-mentes nézés</li>
+      <li>Közvetlen csatorna támogatás</li>
+    </ul>
+  </div>
+</div>
+
+<div class="support-modal" id="smodal-follow">
+  <div class="support-modal-inner">
+    <button class="support-modal-close" onclick="closeSupportPopup('smodal-follow')">×</button>
+    <div class="support-modal-title">Platformok & Megosztás</div>
+    <div class="popup-icon-grid">
+      <a href="https://www.twitch.tv/MrMooris_" target="_blank" class="popup-icon-btn" title="Twitch" style="color:#9147ff">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
+      </a>
+      <a href="https://www.youtube.com/@MrMooris" target="_blank" class="popup-icon-btn" title="YouTube" style="color:#ff0033">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+      </a>
+      <a href="https://kick.com/mrmooriss" target="_blank" class="popup-icon-btn" title="Kick" style="color:#53fc18">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M2 2v20h4v-6l2 2 6 4h5l-8-8 8-8h-5l-6 4-2 2V2H2z"/></svg>
+      </a>
+      <a href="https://www.tiktok.com/@mooris__" target="_blank" class="popup-icon-btn" title="TikTok" style="color:#fff">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.78a8.18 8.18 0 004.78 1.52V6.85a4.83 4.83 0 01-1.01-.16z"/></svg>
+      </a>
+      <button class="popup-icon-btn" title="Oldal megosztása" onclick="shareWebsite()" style="color:#aaa">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+      </button>
+    </div>
+    
+  </div>
+</div>
 </body>
 </html>
