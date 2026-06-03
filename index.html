@@ -41,7 +41,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .nav-logo-dot.is-live-kick{background:#53fc18;box-shadow:0 0 8px #53fc18}
 .nav-logo-dot.is-live-tiktok{background:#ffffff;box-shadow:0 0 8px rgba(255,255,255,.7)}
 .nav-links{display:flex;list-style:none;gap:0}
-.nav-links a{color:var(--muted3);text-decoration:none;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:0 1.2rem;line-height:56px;transition:color .15s;position:relative}
+.nav-links a{color:var(--muted3);text-decoration:none;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:0 1.2rem;line-height:56px;transition:color .15s;position:relative;overflow:hidden}
 .nav-links a::after{content:'';position:absolute;bottom:0;left:1.2rem;right:1.2rem;height:2px;background:rgba(255,255,255,.7);transform:scaleX(0);transition:transform .2s;transform-origin:left}
 .nav-links a:hover,.nav-links a.active{color:var(--text)}
 .nav-links a.active::after{transform:scaleX(1)}
@@ -578,12 +578,14 @@ footer span{color:var(--muted)}
 @keyframes pgFadeOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-8px)}}
 @keyframes pgFadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-/* ── PARALLAX (törlésnél: ezt a blokkot töröld) ── */
-.hero-bg{will-change:transform;transition:transform .1s linear}
-
 /* ── GREETING ───────────────────────────────────── */
 #hero-greeting{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:1rem;opacity:0;animation:greetingIn .8s .3s ease forwards}
 @keyframes greetingIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+
+/* ── NAV GREETING (törlésnél: ezt töröld) ─────── */
+#nav-greeting{font-size:9px;font-weight:700;letter-spacing:.15em;color:var(--muted);font-family:'Space Mono',monospace;text-transform:uppercase;opacity:0;animation:navGreetIn .6s .5s ease forwards;white-space:nowrap}
+@keyframes navGreetIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+@media(max-width:600px){#nav-greeting{display:none}}
 </style>
 </head>
 <body>
@@ -598,6 +600,7 @@ footer span{color:var(--muted)}
   <a href="#" class="nav-logo" onclick="return showSection('home', document.querySelector('.nav-links a[onclick*=\'home\']'))">
     <span class="nav-logo-dot" id="nav-dot"></span>
     Mooris
+    <span id="nav-greeting"></span>
   </a>
   <ul class="nav-links">
     <li><a href="#" class="active" onclick="showSection('home',this)">Főoldal</a></li>
@@ -680,7 +683,6 @@ footer span{color:var(--muted)}
     <div class="hero-bg"></div>
     <div class="hero-scanlines"></div>
     <div class="hero-content">
-      <div id="hero-greeting"></div>
       <div class="hero-name-svg-wrap" aria-label="Mooris">
         <svg class="hero-name-svg" viewBox="0 0 700 100" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -2265,16 +2267,7 @@ renderCrew();
   </div>
 </div>
 <script>
-// ── PARALLAX (törlésnél: ezt a blokkot töröld) ──────
-(function(){
-  var heroBg = document.querySelector('.hero-bg');
-  if(!heroBg) return;
-  window.addEventListener('scroll', function(){
-    var scrollY = window.pageYOffset;
-    heroBg.style.transform = 'translateY(' + (scrollY * 0.35) + 'px)';
-  }, {passive: true});
-})();
-// ── PARALLAX VÉGE ────────────────────────────────────
+
 </script>
 <script>
 // ── GREETING ─────────────────────────────────────
@@ -2297,6 +2290,23 @@ renderCrew();
   }
   el.textContent = text;
 })();
+</script>
+<script>
+// ── NAV GREETING (törlésnél: ezt töröld) ──────────
+(function(){
+  var el = document.getElementById('nav-greeting');
+  if(!el) return;
+  var h = new Date().getHours();
+  var g = h>=5&&h<10?'☀️ Jó reggelt!'
+        : h>=10&&h<12?'🌤️ Jó délelőttöt!'
+        : h>=12&&h<14?'🌞 Jó napot!'
+        : h>=14&&h<18?'☕ Jó délutánt!'
+        : h>=18&&h<22?'🌙 Jó estét!'
+        : h>=22?'🌃 Jó éjszakát!'
+        : '🦉 Te is éjszakázol?';
+  el.textContent = '— ' + g;
+})();
+// ── NAV GREETING VÉGE ─────────────────────────────
 </script>
 </body>
 </html>
