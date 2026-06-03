@@ -993,7 +993,7 @@ footer span{color:var(--muted)}
           <div class="game-title">R.E.P.O.</div>
         </div>
         <div class="game-card">
-          <img class="game-cover" src="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2483190/library_600x900.jpg" alt="Forza Horizon 6" onerror="this.src='https://cdn.akamai.steamstatic.com/steam/apps/2483190/capsule_231x87.jpg'" loading="lazy">
+          <img class="game-cover" src="https://cdn.akamai.steamstatic.com/steam/apps/2483190/header.jpg" alt="Forza Horizon 6" style="width:100px;height:133px;object-fit:cover;object-position:center top" loading="lazy">
           <div class="game-title">Forza Horizon 6</div>
         </div>
         <div class="game-card">
@@ -2189,42 +2189,51 @@ function updateSingleGoal(prefix,count,milestones,unit){
   }
 }
 function loadGoals(){
-  fetch('https://decapi.me/twitch/followcount/MrMooris_').then(function(r){return r.text();}).then(function(t){
-    var n=parseInt(t.trim())||0;
-    if(n>0){
-      updateSingleGoal('tw',n,[50,100,500,1000],'követő');
-      var e=document.getElementById('stat-followers');if(e)e.textContent=n>=1000?(n/1000).toFixed(1)+'K':n;
-      var cEl=document.getElementById('goal-tw-count');if(cEl)cEl.textContent=n;
-    }
-  }).catch(function(){});
-  fetch('https://kick.com/api/v2/channels/mrmooriss').then(function(r){return r.json();}).then(function(d){
-    var n=d.followers_count||0;
-    if(n>=0){
+  // Twitch - stat pillből olvassuk
+  var twEl=document.getElementById('stat-followers');
+  var twN=twEl?parseInt(twEl.textContent.replace('K',''))*( twEl.textContent.includes('K')?1000:1)||0:0;
+  var twRaw=twEl?twEl.textContent:'0';
+  // Közvetlen fetch
+  fetch('https://decapi.me/twitch/followcount/MrMooris_')
+    .then(function(r){return r.text();})
+    .then(function(t){
+      var n=parseInt(t.trim())||0;
+      if(n>0){
+        updateSingleGoal('tw',n,[50,100,500,1000],'követő');
+        if(twEl) twEl.textContent=n>=1000?(n/1000).toFixed(1)+'K':n;
+      }
+    }).catch(function(){
+      // Fallback: stat pillből
+      if(twN>0) updateSingleGoal('tw',twN,[50,100,500,1000],'követő');
+    });
+
+  // Kick
+  fetch('https://kick.com/api/v2/channels/mrmooriss')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      var n=d.followers_count||0;
       updateSingleGoal('kk',n,[50,100,500],'követő');
-      var e=document.getElementById('stat-kick-followers');if(e)e.textContent=n>=1000?(n/1000).toFixed(1)+'K':n;
-      var cEl=document.getElementById('goal-kk-count');if(cEl)cEl.textContent=n;
-    }
-  }).catch(function(){});
-  var ytStored=parseInt(localStorage.getItem('mooris-yt-count'))||0;
-  if(ytStored>0){
+      var e=document.getElementById('stat-kick-followers');
+      if(e) e.textContent=n>=1000?(n/1000).toFixed(1)+'K':n;
+    }).catch(function(){});
+
+  // YouTube - localStorage
+  var ytN=parseInt(localStorage.getItem('mooris-yt-count'))||0;
+  if(ytN>0){
+    updateSingleGoal('yt',ytN,[50,100,500],'feliratkozó');
     var ytEl=document.getElementById('stat-yt-followers');
-    if(ytEl) ytEl.textContent=ytStored>=1000?(ytStored/1000).toFixed(1)+'K':ytStored;
-    updateSingleGoal('yt',ytStored,[50,100,500],'feliratkozó');
+    if(ytEl) ytEl.textContent=ytN>=1000?(ytN/1000).toFixed(1)+'K':ytN;
   }
-  // Discord - dc-total-ból olvassuk ami már be van töltve
-  setTimeout(function(){
-    var dcEl=document.getElementById('dc-total');
-    var n=dcEl?parseInt(dcEl.textContent)||0:0;
-    if(n>0) updateSingleGoal('dc',n,[50],'tag');
-    var cEl=document.getElementById('goal-dc-count');
-    if(cEl&&n>0) cEl.textContent=n;
-  }, 2000);
-  fetch('https://discord.com/api/v9/invites/DBkdktT54m?with_counts=true').then(function(r){return r.json();}).then(function(d){
-    var n=d.approximate_member_count||0;
-    updateSingleGoal('dc',n,[50],'tag');
-    var e=document.getElementById('dc-total');if(e)e.textContent=n;
-    var cEl=document.getElementById('goal-dc-count');if(cEl)cEl.textContent=n;
-  }).catch(function(){});
+
+  // Discord
+  fetch('https://discord.com/api/v9/invites/DBkdktT54m?with_counts=true')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      var n=d.approximate_member_count||0;
+      updateSingleGoal('dc',n,[50],'tag');
+      var e=document.getElementById('dc-total');if(e) e.textContent=n;
+      var e2=document.getElementById('dc-online');if(e2&&d.approximate_presence_count) e2.textContent=d.approximate_presence_count;
+    }).catch(function(){});
 }
 loadGoals();
 setInterval(loadGoals,300000);
