@@ -580,6 +580,10 @@ footer span{color:var(--muted)}
 
 /* ── PARALLAX (törlésnél: ezt a blokkot töröld) ── */
 .hero-bg{will-change:transform;transition:transform .1s linear}
+
+/* ── GREETING ───────────────────────────────────── */
+#hero-greeting{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:1rem;opacity:0;animation:greetingIn .8s .3s ease forwards}
+@keyframes greetingIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
 </style>
 </head>
 <body>
@@ -676,6 +680,7 @@ footer span{color:var(--muted)}
     <div class="hero-bg"></div>
     <div class="hero-scanlines"></div>
     <div class="hero-content">
+      <div id="hero-greeting"></div>
       <div class="hero-name-svg-wrap" aria-label="Mooris">
         <svg class="hero-name-svg" viewBox="0 0 700 100" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -2270,6 +2275,28 @@ renderCrew();
   }, {passive: true});
 })();
 // ── PARALLAX VÉGE ────────────────────────────────────
+</script>
+<script>
+// ── GREETING ─────────────────────────────────────
+(function(){
+  var el = document.getElementById('hero-greeting');
+  if(!el) return;
+  var h = new Date().getHours();
+  var greetings = [
+    [5,  10, '☀️ Jó reggelt!'],
+    [10, 12, '🌤️ Jó délelőttöt!'],
+    [12, 14, '🌞 Jó napot!'],
+    [14, 18, '☕ Jó délutánt!'],
+    [18, 22, '🌙 Jó estét!'],
+    [22, 24, '🌃 Jó éjszakát!'],
+    [0,   5, '🦉 Te is éjszakázol?']
+  ];
+  var text = '👋 Szia!';
+  for(var i=0;i<greetings.length;i++){
+    if(h>=greetings[i][0] && h<greetings[i][1]){ text=greetings[i][2]; break; }
+  }
+  el.textContent = text;
+})();
 </script>
 </body>
 </html>
