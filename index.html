@@ -543,6 +543,22 @@ footer span{color:var(--muted)}
 .setup-tab.active{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.25);color:var(--text);box-shadow:0 0 12px rgba(255,255,255,.08)}
 .setup-panel{display:none}
 .setup-panel.active{display:block}
+
+/* ── GOALS ──────────────────────────────────────── */
+.goals-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;margin-top:1rem}
+.goal-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:1.2rem;display:flex;flex-direction:column;gap:.9rem}
+.goal-header{display:flex;align-items:center;gap:10px}
+.goal-icon{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.05);flex-shrink:0}
+.goal-platform{font-weight:700;font-size:.9rem;color:var(--text);flex:1}
+.goal-count{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--muted2)}
+.goal-single-wrap{display:flex;flex-direction:column;gap:5px}
+.goal-single-label{display:flex;justify-content:space-between;font-size:10px;color:var(--muted2)}
+.goal-single-pct{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:var(--text)}
+.goal-bar{width:100%;height:6px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}
+.goal-bar-fill{height:100%;border-radius:4px;width:0%;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+
+#yt-admin-panel{background:rgba(255,255,255,.03);border:1px solid rgba(255,0,51,.15);border-radius:14px;padding:1.2rem 1.4rem}
+#yt-count-input:focus{border-color:rgba(255,0,51,.4)}
 </style>
 </head>
 <body>
@@ -868,6 +884,77 @@ footer span{color:var(--muted)}
         </div>
       </div>
     </div>
+
+    <!-- YouTube Admin Panel (csak admin módban látható) -->
+    <div id="yt-admin-panel" style="display:none;margin-top:2rem">
+      <div class="editor-header" style="margin-bottom:1rem">
+        <div class="editor-title">📺 YouTube feliratkozók</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <label style="font-size:12px;color:var(--muted2);font-family:'Space Mono',monospace">Feliratkozók száma:</label>
+        <input type="number" id="yt-count-input" min="0" placeholder="pl. 42"
+          style="background:var(--bg3);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:8px 12px;color:var(--text);font-family:'Space Mono',monospace;font-size:14px;width:120px;outline:none">
+        <button onclick="saveYTCount()" style="background:var(--red);border:none;border-radius:8px;padding:8px 16px;color:#fff;font-weight:700;font-size:12px;cursor:pointer;font-family:'Space Mono',monospace;letter-spacing:.1em">MENTÉS</button>
+        <span id="yt-save-msg" style="font-size:11px;color:#4eff91;opacity:0;transition:opacity .3s;font-family:'Space Mono',monospace"></span>
+      </div>
+    </div>
+    <!-- Célok / Mérföldkövek -->
+    <div style="margin-top:3rem">
+      <p class="section-eyebrow">Mérföldkövek</p>
+      <h3 style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;margin-bottom:.5rem">Célok</h3>
+      <p style="color:var(--muted2);font-size:.9rem;margin-bottom:1.5rem">Minden egyes követő számít!</p>
+      <div class="goals-grid">
+
+        <div class="goal-card">
+          <div class="goal-header">
+            <div class="goal-icon" style="color:#9147ff"><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg></div>
+            <div class="goal-platform">Twitch</div>
+            <div class="goal-count" id="goal-twitch-count">—</div>
+          </div>
+          <div class="goal-single-wrap">
+            <div class="goal-single-label"><span id="gtw-label">töltés...</span><span class="goal-single-pct" id="gtw-pct">0%</span></div>
+            <div class="goal-bar"><div class="goal-bar-fill" id="gtw-fill" style="background:#9147ff"></div></div>
+          </div>
+        </div>
+
+        <div class="goal-card">
+          <div class="goal-header">
+            <div class="goal-icon" style="color:#53fc18"><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M2 2v20h4v-6l2 2 6 4h5l-8-8 8-8h-5l-6 4-2 2V2H2z"/></svg></div>
+            <div class="goal-platform">Kick</div>
+            <div class="goal-count" id="goal-kick-count">—</div>
+          </div>
+          <div class="goal-single-wrap">
+            <div class="goal-single-label"><span id="gkk-label">töltés...</span><span class="goal-single-pct" id="gkk-pct">0%</span></div>
+            <div class="goal-bar"><div class="goal-bar-fill" id="gkk-fill" style="background:#53fc18"></div></div>
+          </div>
+        </div>
+
+        <div class="goal-card">
+          <div class="goal-header">
+            <div class="goal-icon" style="color:#ff0033"><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></div>
+            <div class="goal-platform">YouTube</div>
+            <div class="goal-count" id="goal-yt-count">—</div>
+          </div>
+          <div class="goal-single-wrap">
+            <div class="goal-single-label"><span id="gyt-label">töltés...</span><span class="goal-single-pct" id="gyt-pct">0%</span></div>
+            <div class="goal-bar"><div class="goal-bar-fill" id="gyt-fill" style="background:#ff0033"></div></div>
+          </div>
+        </div>
+
+        <div class="goal-card">
+          <div class="goal-header">
+            <div class="goal-icon" style="color:#7289da"><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.102 18.08.114 18.1.131 18.11a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg></div>
+            <div class="goal-platform">Discord</div>
+            <div class="goal-count" id="goal-dc-count">—</div>
+          </div>
+          <div class="goal-single-wrap">
+            <div class="goal-single-label"><span id="gdc-label">töltés...</span><span class="goal-single-pct" id="gdc-pct">0%</span></div>
+            <div class="goal-bar"><div class="goal-bar-fill" id="gdc-fill" style="background:#7289da"></div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1049,6 +1136,11 @@ function switchSetupTab(tab, el){
 }
 
 function showSection(id, el) {
+  // YT admin panel csak Rólam oldalon és admin módban
+  var ytPanel = document.getElementById('yt-admin-panel');
+  if(ytPanel){
+    ytPanel.style.display = (id==='about' && window._adminOk) ? 'block' : 'none';
+  }
   document.querySelectorAll('.page-section').forEach(function(s){ s.classList.remove('active'); s.style.display=''; });
   var target = document.getElementById('sec-' + id);
   if (target) {
@@ -1119,6 +1211,7 @@ function switchStream(to) {
   } else {
     wy.style.display=''; ty.classList.add('active-youtube');
   }
+  checkLive();
 }
 
 // ── Menetrend ─────────────────────────────────────
@@ -1310,14 +1403,19 @@ async function checkPw(){
   if(hash===ADMIN_HASH){
     closeAdmin();
     window._adminOk = true;
-    var schedLink = document.querySelector('.nav-links a[onclick*="schedule"]');
-    showSection('schedule', schedLink);
-    setTimeout(function(){
-      document.getElementById('admin-panel').classList.add('show');
-      renderEditor();
-      document.getElementById('admin-panel').scrollIntoView({behavior:'smooth', block:'start'});
-    }, 200);
-  } else {
+    // YT panel megjelenítése ha már Rólam oldalon van
+    var ytPanel = document.getElementById('yt-admin-panel');
+    if(ytPanel){
+      var aboutSec = document.getElementById('sec-about');
+      if(aboutSec && aboutSec.classList.contains('active')) ytPanel.style.display = 'block';
+    }
+    // Admin értesítés
+    var notif = document.createElement('div');
+    notif.style.cssText='position:fixed;top:70px;right:20px;background:#111;border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px 16px;font-size:12px;color:#fff;z-index:999;font-family:Space Mono,monospace;box-shadow:0 4px 20px rgba(0,0,0,.5)';
+    notif.textContent='✓ Admin belépve';
+    document.body.appendChild(notif);
+    setTimeout(function(){notif.remove();},2500);
+    } else {
     document.getElementById('pw-error').textContent='Hibás jelszó!';
     document.getElementById('pw-input').value='';
     document.getElementById('pw-input').focus();
@@ -2001,5 +2099,95 @@ renderCrew();
     
   </div>
 </div>
+<script>
+// ── GOALS ────────────────────────────────────────
+function updateSingleGoal(prefix,count,milestones,unit){
+  var cEl=document.getElementById('goal-'+prefix+'-count');
+  if(cEl)cEl.textContent=count+' '+unit;
+  var next=null,prev=0;
+  for(var i=0;i<milestones.length;i++){if(count<milestones[i]){next=milestones[i];prev=i>0?milestones[i-1]:0;break;}}
+  var fEl=document.getElementById('g'+prefix+'-fill');
+  var lEl=document.getElementById('g'+prefix+'-label');
+  var pEl=document.getElementById('g'+prefix+'-pct');
+  if(!next){
+    if(lEl)lEl.textContent='🎉 Minden cél teljesítve!';
+    if(pEl)pEl.textContent='100%';
+    if(fEl)setTimeout(function(){fEl.style.width='100%';},200);
+    return;
+  }
+  var pct=Math.min(100,Math.round(((count-prev)/(next-prev))*100));
+  if(lEl)lEl.textContent=next+' '+unit+' felé ('+count+'/'+next+')';
+  if(pEl)pEl.textContent=pct+'%';
+  if(fEl){
+    if(pct>=100){
+      fEl.style.width='100%';
+      setTimeout(function(){fEl.style.transition='none';fEl.style.width='0%';setTimeout(function(){fEl.style.transition='';fEl.style.width=pct+'%';},150);},900);
+    } else {setTimeout(function(){fEl.style.width=pct+'%';},300);}
+  }
+}
+function loadGoals(){
+  fetch('https://decapi.me/twitch/followcount/MrMooris_').then(function(r){return r.text();}).then(function(t){
+    var n=parseInt(t.trim())||0;updateSingleGoal('tw',n,[50,100,500,1000],'követő');
+    var e=document.getElementById('stat-followers');if(e&&n>0)e.textContent=n>=1000?(n/1000).toFixed(1)+'K':n;
+  }).catch(function(){});
+  fetch('https://kick.com/api/v2/channels/mrmooriss').then(function(r){return r.json();}).then(function(d){
+    var n=d.followers_count||0;updateSingleGoal('kk',n,[50,100,500],'követő');
+    var e=document.getElementById('stat-kick-followers');if(e)e.textContent=n>=1000?(n/1000).toFixed(1)+'K':n;
+  }).catch(function(){});
+  var ytEl=document.getElementById('stat-yt-followers');
+  updateSingleGoal('yt',ytEl?parseInt(ytEl.textContent)||0:0,[50,100,500],'feliratkozó');
+  fetch('https://discord.com/api/v9/invites/DBkdktT54m?with_counts=true').then(function(r){return r.json();}).then(function(d){
+    var n=d.approximate_member_count||0;updateSingleGoal('dc',n,[50],'tag');
+    var e=document.getElementById('dc-total');if(e)e.textContent=n;
+  }).catch(function(){});
+}
+loadGoals();
+setInterval(loadGoals,300000);
+</script>
+<script>
+// ── YOUTUBE COUNT ADMIN ───────────────────────────
+function saveYTCount(){
+  var val = parseInt(document.getElementById('yt-count-input').value) || 0;
+  localStorage.setItem('mooris-yt-count', val);
+  // Firebase-be is mentjük
+  fetch('https://mooris-web-default-rtdb.europe-west1.firebasedatabase.app/yt_count.json', {
+    method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(val)
+  }).catch(function(){});
+  // Frissítjük a kijelzőket
+  var el = document.getElementById('stat-yt-followers');
+  if(el) el.textContent = val >= 1000 ? (val/1000).toFixed(1)+'K' : val;
+  updateSingleGoal('yt', val, [50,100,500], 'feliratkozó');
+  // Visszajelzés
+  var msg = document.getElementById('yt-save-msg');
+  if(msg){ msg.textContent='✓ Mentve!'; msg.style.opacity='1'; setTimeout(function(){ msg.style.opacity='0'; },2000); }
+}
+
+function loadYTCount(){
+  // Firebase-ből töltjük
+  fetch('https://mooris-web-default-rtdb.europe-west1.firebasedatabase.app/yt_count.json')
+    .then(function(r){ return r.json(); })
+    .then(function(val){
+      if(val && typeof val === 'number'){
+        localStorage.setItem('mooris-yt-count', val);
+        var el = document.getElementById('stat-yt-followers');
+        if(el) el.textContent = val >= 1000 ? (val/1000).toFixed(1)+'K' : val;
+        var inp = document.getElementById('yt-count-input');
+        if(inp) inp.value = val;
+        updateSingleGoal('yt', val, [50,100,500], 'feliratkozó');
+      }
+    }).catch(function(){
+      // Fallback: localStorage
+      var local = parseInt(localStorage.getItem('mooris-yt-count')) || 0;
+      if(local > 0){
+        var el = document.getElementById('stat-yt-followers');
+        if(el) el.textContent = local >= 1000 ? (local/1000).toFixed(1)+'K' : local;
+        var inp = document.getElementById('yt-count-input');
+        if(inp) inp.value = local;
+        updateSingleGoal('yt', local, [50,100,500], 'feliratkozó');
+      }
+    });
+loadYTCount();
+}
+</script>
 </body>
 </html>
