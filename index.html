@@ -1498,7 +1498,7 @@ async function checkPw(){
     document.getElementById('pw-input').focus();
   }
 }
-function logout(){ document.getElementById('admin-panel').classList.remove('show'); window._adminOk = false; try{location.hash='';}catch(e){} }
+function logout(){ document.getElementById('admin-panel').classList.remove('show'); var ytp=document.getElementById('yt-admin-panel'); if(ytp) ytp.style.display='none'; window._adminOk=false; try{location.hash='';}catch(e){} }
 
 document.getElementById('footer-trigger').addEventListener('click',function(){
   if(window._adminOk){
