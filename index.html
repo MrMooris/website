@@ -577,6 +577,9 @@ footer span{color:var(--muted)}
 .page-section.fade-in{animation:pgFadeIn .25s ease forwards}
 @keyframes pgFadeOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-8px)}}
 @keyframes pgFadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── PARALLAX (törlésnél: ezt a blokkot töröld) ── */
+.hero-bg{will-change:transform;transition:transform .1s linear}
 </style>
 </head>
 <body>
@@ -2256,5 +2259,17 @@ renderCrew();
     
   </div>
 </div>
+<script>
+// ── PARALLAX (törlésnél: ezt a blokkot töröld) ──────
+(function(){
+  var heroBg = document.querySelector('.hero-bg');
+  if(!heroBg) return;
+  window.addEventListener('scroll', function(){
+    var scrollY = window.pageYOffset;
+    heroBg.style.transform = 'translateY(' + (scrollY * 0.35) + 'px)';
+  }, {passive: true});
+})();
+// ── PARALLAX VÉGE ────────────────────────────────────
+</script>
 </body>
 </html>
