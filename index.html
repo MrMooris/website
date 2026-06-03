@@ -1630,7 +1630,7 @@ function fetchFollowers(){
       var el = document.getElementById('stat-followers');
       if(!el) return;
       var n = parseInt(count.trim());
-      if(!isNaN(n)) el.textContent = n >= 1000 ? (n/1000).toFixed(1)+'K' : n;
+      if(!isNaN(n)) animateCount(el, n, 1200);
     }).catch(function(){});
 
 
@@ -1641,7 +1641,7 @@ function fetchFollowers(){
       var el = document.getElementById('stat-kick-followers');
       if(!el) return;
       var n = d.followers_count || 0;
-      el.textContent = n >= 1000 ? (n/1000).toFixed(1)+'K' : n;
+      animateCount(el, n, 1200);
     }).catch(function(){});
 
   // YouTube követők - YouTube Data API v3
@@ -1652,7 +1652,7 @@ function fetchFollowers(){
       if(!el) return;
       if(data.items && data.items[0]){
         var n = parseInt(data.items[0].statistics.subscriberCount) || 0;
-        el.textContent = n >= 1000 ? (n/1000).toFixed(1)+'K' : n;
+        animateCount(el, n, 1200);
       }
     }).catch(function(){});
 }
@@ -2288,15 +2288,7 @@ function animateCount(el, target, duration){
   requestAnimationFrame(step);
 }
 
-// Patch: loadGoals után animált megjelenítés
-var _origUpdateSingleGoal = (typeof updateSingleGoal === 'function') ? updateSingleGoal : null;
-function updateSingleGoal(prefix, count, milestones, unit){
-  if(_origUpdateSingleGoal) _origUpdateSingleGoal(prefix, count, milestones, unit);
-  // Stat pill animálás
-  var pillIds = {tw:'stat-followers', kk:'stat-kick-followers', yt:'stat-yt-followers', dc:'stat-dc'};
-  var pillEl = document.getElementById(pillIds[prefix]);
-  if(pillEl && count > 0) animateCount(pillEl, count, 1200);
-}
+// Animált számok a stat pillekre külön kezelve
 
 // ── VISSZASZÁMLÁLÓ ────────────────────────────────
 function updateCountdown(){
