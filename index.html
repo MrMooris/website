@@ -1466,18 +1466,14 @@ async function checkPw(){
   if(hash===ADMIN_HASH){
     closeAdmin();
     window._adminOk = true;
-    // YT panel megjelenítése ha már Rólam oldalon van
-    var ytPanel = document.getElementById('yt-admin-panel');
-    if(ytPanel){
-      var aboutSec = document.getElementById('sec-about');
-      if(aboutSec && aboutSec.classList.contains('active')) ytPanel.style.display = 'block';
-    }
-    // Admin értesítés
-    var notif = document.createElement('div');
-    notif.style.cssText='position:fixed;top:70px;right:20px;background:#111;border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px 16px;font-size:12px;color:#fff;z-index:999;font-family:Space Mono,monospace;box-shadow:0 4px 20px rgba(0,0,0,.5)';
-    notif.textContent='✓ Admin belépve';
-    document.body.appendChild(notif);
-    setTimeout(function(){notif.remove();},2500);
+    closeAdmin();
+    // Menetrend fülre navigál és megnyitja az admin panelt
+    var schedLink = document.querySelector('.nav-links a[onclick*="schedule"]');
+    showSection('schedule', schedLink);
+    setTimeout(function(){
+      var panel = document.getElementById('admin-panel');
+      if(panel){ panel.classList.add('show'); renderEditor(); }
+    }, 100);
     } else {
     document.getElementById('pw-error').textContent='Hibás jelszó!';
     document.getElementById('pw-input').value='';
@@ -2189,23 +2185,16 @@ function updateSingleGoal(prefix,count,milestones,unit){
   }
 }
 function loadGoals(){
-  // Twitch - stat pillből olvassuk
-  var twEl=document.getElementById('stat-followers');
-  var twN=twEl?parseInt(twEl.textContent.replace('K',''))*( twEl.textContent.includes('K')?1000:1)||0:0;
-  var twRaw=twEl?twEl.textContent:'0';
-  // Közvetlen fetch
   fetch('https://decapi.me/twitch/followcount/MrMooris_')
     .then(function(r){return r.text();})
     .then(function(t){
       var n=parseInt(t.trim())||0;
       if(n>0){
         updateSingleGoal('tw',n,[50,100,500,1000],'követő');
-        if(twEl) twEl.textContent=n>=1000?(n/1000).toFixed(1)+'K':n;
+        var e=document.getElementById('stat-followers');
+        if(e) e.textContent=n>=1000?(n/1000).toFixed(1)+'K':n;
       }
-    }).catch(function(){
-      // Fallback: stat pillből
-      if(twN>0) updateSingleGoal('tw',twN,[50,100,500,1000],'követő');
-    });
+    }).catch(function(){});
 
   // Kick
   fetch('https://kick.com/api/v2/channels/mrmooriss')
@@ -2300,9 +2289,9 @@ function animateCount(el, target, duration){
 }
 
 // Patch: loadGoals után animált megjelenítés
-var _origUpdateSingleGoal = updateSingleGoal;
+var _origUpdateSingleGoal = (typeof updateSingleGoal === 'function') ? updateSingleGoal : null;
 function updateSingleGoal(prefix, count, milestones, unit){
-  _origUpdateSingleGoal(prefix, count, milestones, unit);
+  if(_origUpdateSingleGoal) _origUpdateSingleGoal(prefix, count, milestones, unit);
   // Stat pill animálás
   var pillIds = {tw:'stat-followers', kk:'stat-kick-followers', yt:'stat-yt-followers', dc:'stat-dc'};
   var pillEl = document.getElementById(pillIds[prefix]);
