@@ -559,6 +559,21 @@ footer span{color:var(--muted)}
 
 #yt-admin-panel{background:rgba(255,255,255,.03);border:1px solid rgba(255,0,51,.15);border-radius:14px;padding:1.2rem 1.4rem}
 #yt-count-input:focus{border-color:rgba(255,0,51,.4)}
+
+/* ── TOP GAMES ──────────────────────────────────── */
+.top-games-grid{display:flex;gap:12px;flex-wrap:wrap}
+.game-card{width:100px;display:flex;flex-direction:column;gap:6px;cursor:default}
+.game-cover{width:100px;height:133px;object-fit:cover;border-radius:10px;border:1px solid rgba(255,255,255,.08);display:block;transition:transform .2s,box-shadow .2s}
+.game-card:hover .game-cover{transform:scale(1.04);box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.game-title{font-size:11px;font-weight:600;color:var(--muted2);text-align:center;line-height:1.3}
+
+/* ── COUNTDOWN ───────────────────────────────────── */
+.countdown-strip{display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;flex-wrap:wrap}
+.cd-next-label{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace}
+.cd-day-text{font-size:11px;font-weight:700;color:var(--muted2);font-family:'Space Mono',monospace}
+.cd-strip-digits{display:flex;align-items:center;gap:2px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:4px 10px}
+.cd-strip-num{font-family:'Space Mono',monospace;font-size:.9rem;font-weight:700;color:var(--text);min-width:1.5ch;text-align:center}
+.cd-strip-sep{font-family:'Space Mono',monospace;font-size:.9rem;color:var(--muted);margin:0 1px}
 </style>
 </head>
 <body>
@@ -909,7 +924,7 @@ footer span{color:var(--muted)}
           <div class="goal-header">
             <div class="goal-icon" style="color:#9147ff"><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg></div>
             <div class="goal-platform">Twitch</div>
-            <div class="goal-count" id="goal-twitch-count">—</div>
+            <div class="goal-count" id="goal-tw-count">—</div>
           </div>
           <div class="goal-single-wrap">
             <div class="goal-single-label"><span id="gtw-label">töltés...</span><span class="goal-single-pct" id="gtw-pct">0%</span></div>
@@ -921,7 +936,7 @@ footer span{color:var(--muted)}
           <div class="goal-header">
             <div class="goal-icon" style="color:#53fc18"><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M2 2v20h4v-6l2 2 6 4h5l-8-8 8-8h-5l-6 4-2 2V2H2z"/></svg></div>
             <div class="goal-platform">Kick</div>
-            <div class="goal-count" id="goal-kick-count">—</div>
+            <div class="goal-count" id="goal-kk-count">—</div>
           </div>
           <div class="goal-single-wrap">
             <div class="goal-single-label"><span id="gkk-label">töltés...</span><span class="goal-single-pct" id="gkk-pct">0%</span></div>
@@ -955,6 +970,47 @@ footer span{color:var(--muted)}
 
       </div>
     </div>
+
+    <!-- Top Játékok -->
+    <div style="margin-top:3rem">
+      <p class="section-eyebrow">Amit leginkább tolok</p>
+      <h3 style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;margin-bottom:1.5rem">Top Játékok</h3>
+      <div class="top-games-grid">
+        <div class="game-card">
+          <img class="game-cover" src="https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/library_600x900.jpg" alt="Elden Ring" loading="lazy">
+          <div class="game-title">Elden Ring</div>
+        </div>
+        <div class="game-card">
+          <img class="game-cover" src="https://cdn.cloudflare.steamstatic.com/steam/apps/730/library_600x900.jpg" alt="CS2" loading="lazy">
+          <div class="game-title">CS2</div>
+        </div>
+        <div class="game-card">
+          <img class="game-cover" src="https://cdn.cloudflare.steamstatic.com/steam/apps/381210/library_600x900.jpg" alt="Dead by Daylight" loading="lazy">
+          <div class="game-title">Dead by Daylight</div>
+        </div>
+        <div class="game-card">
+          <img class="game-cover" src="https://cdn.cloudflare.steamstatic.com/steam/apps/3241660/library_600x900.jpg" alt="R.E.P.O." loading="lazy">
+          <div class="game-title">R.E.P.O.</div>
+        </div>
+        <div class="game-card">
+          <img class="game-cover" src="https://cdn.cloudflare.steamstatic.com/steam/apps/1551360/library_600x900.jpg" alt="Forza Horizon 5" loading="lazy">
+          <div class="game-title">Forza Horizon</div>
+        </div>
+        <div class="game-card">
+          <img class="game-cover" src="https://cdn.cloudflare.steamstatic.com/steam/apps/739630/library_600x900.jpg" alt="Phasmophobia" loading="lazy">
+          <div class="game-title">Phasmophobia</div>
+        </div>
+        <div class="game-card">
+          <img class="game-cover" src="https://cdn.cloudflare.steamstatic.com/steam/apps/2523010/library_600x900.jpg" alt="Nuclear Nightmare" loading="lazy">
+          <div class="game-title">Nuclear Nightmare</div>
+        </div>
+        <div class="game-card">
+          <img class="game-cover" src="https://cdn.cloudflare.steamstatic.com/steam/apps/1672970/library_600x900.jpg" alt="Minecraft" loading="lazy" onerror="this.src='https://www.minecraft.net/content/dam/games/minecraft/key-art/MC_The-Overworld_Desktop.jpg'">
+          <div class="game-title">Minecraft</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -1042,6 +1098,13 @@ footer span{color:var(--muted)}
   <div class="section-inner">
     <p class="section-eyebrow">Mikor streamelekt?</p>
     <h2 class="section-heading">Menetrend</h2>
+    <div class="countdown-strip" id="countdown-clock">
+      <span class="cd-next-label">Következő stream:</span>
+      <span class="cd-day-text" id="countdown-day-label">—</span>
+      <div class="cd-strip-digits">
+        <span class="cd-strip-num" id="cd-h">00</span><span class="cd-strip-sep">:</span><span class="cd-strip-num" id="cd-m">00</span><span class="cd-strip-sep">:</span><span class="cd-strip-num" id="cd-s">00</span>
+      </div>
+    </div>
     <div class="schedule-grid" id="schedule-display"></div>
     <div id="admin-panel">
       <div class="editor-header">
@@ -2103,7 +2166,7 @@ renderCrew();
 // ── GOALS ────────────────────────────────────────
 function updateSingleGoal(prefix,count,milestones,unit){
   var cEl=document.getElementById('goal-'+prefix+'-count');
-  if(cEl)cEl.textContent=count+' '+unit;
+  if(cEl)cEl.textContent=count>=1000?(count/1000).toFixed(1)+'K':count;
   var next=null,prev=0;
   for(var i=0;i<milestones.length;i++){if(count<milestones[i]){next=milestones[i];prev=i>0?milestones[i-1]:0;break;}}
   var fEl=document.getElementById('g'+prefix+'-fill');
@@ -2134,8 +2197,12 @@ function loadGoals(){
     var n=d.followers_count||0;updateSingleGoal('kk',n,[50,100,500],'követő');
     var e=document.getElementById('stat-kick-followers');if(e)e.textContent=n>=1000?(n/1000).toFixed(1)+'K':n;
   }).catch(function(){});
-  var ytEl=document.getElementById('stat-yt-followers');
-  updateSingleGoal('yt',ytEl?parseInt(ytEl.textContent)||0:0,[50,100,500],'feliratkozó');
+  var ytStored=parseInt(localStorage.getItem('mooris-yt-count'))||0;
+  if(ytStored>0){
+    var ytEl=document.getElementById('stat-yt-followers');
+    if(ytEl) ytEl.textContent=ytStored>=1000?(ytStored/1000).toFixed(1)+'K':ytStored;
+    updateSingleGoal('yt',ytStored,[50,100,500],'feliratkozó');
+  }
   fetch('https://discord.com/api/v9/invites/DBkdktT54m?with_counts=true').then(function(r){return r.json();}).then(function(d){
     var n=d.approximate_member_count||0;updateSingleGoal('dc',n,[50],'tag');
     var e=document.getElementById('dc-total');if(e)e.textContent=n;
@@ -2149,7 +2216,6 @@ setInterval(loadGoals,300000);
 function saveYTCount(){
   var val = parseInt(document.getElementById('yt-count-input').value) || 0;
   localStorage.setItem('mooris-yt-count', val);
-  // Firebase-be is mentjük
   fetch('https://mooris-web-default-rtdb.europe-west1.firebasedatabase.app/yt_count.json', {
     method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(val)
   }).catch(function(){});
@@ -2188,6 +2254,87 @@ function loadYTCount(){
     });
 loadYTCount();
 }
+</script>
+<script>
+// ── ANIMÁLT SZÁMOK ────────────────────────────────
+function animateCount(el, target, duration){
+  if(!el) return;
+  var start = 0, startTime = null;
+  function step(ts){
+    if(!startTime) startTime = ts;
+    var progress = Math.min((ts-startTime)/duration, 1);
+    var ease = 1-Math.pow(1-progress, 3);
+    var val = Math.floor(ease * target);
+    el.textContent = val >= 1000 ? (val/1000).toFixed(1)+'K' : val;
+    if(progress < 1) requestAnimationFrame(step);
+    else el.textContent = target >= 1000 ? (target/1000).toFixed(1)+'K' : target;
+  }
+  requestAnimationFrame(step);
+}
+
+// Patch: loadGoals után animált megjelenítés
+var _origUpdateSingleGoal = updateSingleGoal;
+function updateSingleGoal(prefix, count, milestones, unit){
+  _origUpdateSingleGoal(prefix, count, milestones, unit);
+  // Stat pill animálás
+  var pillIds = {tw:'stat-followers', kk:'stat-kick-followers', yt:'stat-yt-followers', dc:'stat-dc'};
+  var pillEl = document.getElementById(pillIds[prefix]);
+  if(pillEl && count > 0) animateCount(pillEl, count, 1200);
+}
+
+// ── VISSZASZÁMLÁLÓ ────────────────────────────────
+function updateCountdown(){
+  var now = new Date();
+  var dayIdx = (now.getDay()+6)%7; // 0=Hétfő
+  var nextStream = null;
+  var daysOfWeek = ['Hétfő','Kedd','Szerda','Csütörtök','Péntek','Szombat','Vasárnap'];
+
+  for(var i=0; i<7; i++){
+    var idx = (dayIdx+i)%7;
+    var d = schedule[idx];
+    if(!d || !d.active || !d.time) continue;
+    var parts = d.time.split(':');
+    var candidate = new Date(now);
+    candidate.setDate(now.getDate()+i);
+    candidate.setHours(parseInt(parts[0]), parseInt(parts[1]), 0, 0);
+    if(candidate > now){
+      nextStream = {date: candidate, dayName: daysOfWeek[idx]};
+      break;
+    }
+  }
+
+  var card = document.getElementById('countdown-card');
+  var offline = document.getElementById('countdown-offline');
+  var dayLabel = document.getElementById('countdown-day-label');
+
+  if(!nextStream){
+    if(card) card.style.display='none';
+    if(offline) offline.style.display='block';
+    return;
+  }
+
+  if(card) card.style.display='';
+  if(offline) offline.style.display='none';
+  if(dayLabel) dayLabel.textContent = nextStream.dayName + ' – ' + nextStream.date.getHours()+':'+String(nextStream.date.getMinutes()).padStart(2,'0');
+
+  var diff = nextStream.date - now;
+  var h = Math.floor(diff/3600000);
+  var m = Math.floor((diff%3600000)/60000);
+  var s = Math.floor((diff%60000)/1000);
+
+  var hEl=document.getElementById('cd-h');
+  var mEl=document.getElementById('cd-m');
+  var sEl=document.getElementById('cd-s');
+  if(hEl) hEl.textContent = String(h).padStart(2,'0');
+  if(mEl) mEl.textContent = String(m).padStart(2,'0');
+  if(sEl) sEl.textContent = String(s).padStart(2,'0');
+}
+
+// Countdown csak akkor indul, ha a schedule betöltődött
+setTimeout(function(){
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+}, 500);
 </script>
 </body>
 </html>
