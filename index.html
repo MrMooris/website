@@ -1199,10 +1199,17 @@ function switchSetupTab(tab, el){
 }
 
 function showSection(id, el) {
-  // YT admin panel csak Rólam oldalon és admin módban
+  // Admin panelek kezelése navigációkor
   var ytPanel = document.getElementById('yt-admin-panel');
-  if(ytPanel){
-    ytPanel.style.display = (id==='about' && window._adminOk) ? 'block' : 'none';
+  if(ytPanel) ytPanel.style.display = (id==='about' && window._adminOk) ? 'block' : 'none';
+  var schedPanel = document.getElementById('admin-panel');
+  if(schedPanel && id==='schedule' && window._adminOk){
+    setTimeout(function(){
+      schedPanel.classList.add('show');
+      renderEditor();
+    }, 100);
+  } else if(schedPanel && id!=='schedule'){
+    schedPanel.classList.remove('show');
   }
   document.querySelectorAll('.page-section').forEach(function(s){ s.classList.remove('active'); s.style.display=''; });
   var target = document.getElementById('sec-' + id);
@@ -1467,13 +1474,23 @@ async function checkPw(){
     closeAdmin();
     window._adminOk = true;
     closeAdmin();
-    // Menetrend fülre navigál és megnyitja az admin panelt
-    var schedLink = document.querySelector('.nav-links a[onclick*="schedule"]');
-    showSection('schedule', schedLink);
-    setTimeout(function(){
-      var panel = document.getElementById('admin-panel');
-      if(panel){ panel.classList.add('show'); renderEditor(); }
-    }, 100);
+    // Értesítés - marad az aktuális oldalon
+    var notif = document.createElement('div');
+    notif.innerHTML = '<b>✓ Admin belépve</b><br><span style="font-size:10px;opacity:.7">Rólam → YouTube szerk. &nbsp;|&nbsp; Menetrend → Időpontok</span>';
+    notif.style.cssText = 'position:fixed;top:70px;right:20px;background:#111;border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:12px 18px;font-size:12px;color:#fff;z-index:9999;font-family:Space Mono,monospace;box-shadow:0 4px 24px rgba(0,0,0,.6);line-height:1.6';
+    document.body.appendChild(notif);
+    setTimeout(function(){notif.style.transition='opacity .5s';notif.style.opacity='0';setTimeout(function(){notif.remove();},500);},3000);
+    // Aktuális szekción belüli panelek megjelenítése
+    var activeSection = document.querySelector('.page-section.active');
+    if(activeSection){
+      if(activeSection.id==='sec-schedule'){
+        var panel=document.getElementById('admin-panel');
+        if(panel){panel.classList.add('show');renderEditor();}
+      } else if(activeSection.id==='sec-about'){
+        var ytP=document.getElementById('yt-admin-panel');
+        if(ytP) ytP.style.display='block';
+      }
+    }
     } else {
     document.getElementById('pw-error').textContent='Hibás jelszó!';
     document.getElementById('pw-input').value='';
@@ -1484,13 +1501,17 @@ function logout(){ document.getElementById('admin-panel').classList.remove('show
 
 document.getElementById('footer-trigger').addEventListener('click',function(){
   if(window._adminOk){
-    var schedLink = document.querySelector('.nav-links a[onclick*="schedule"]');
-    showSection('schedule', schedLink);
-    setTimeout(function(){
-      var panel = document.getElementById('admin-panel');
-      panel.classList.toggle('show');
-      if(panel.classList.contains('show')){ renderEditor(); panel.scrollIntoView({behavior:'smooth',block:'start'}); }
-    }, 200);
+    var activeSection=document.querySelector('.page-section.active');
+    if(activeSection && activeSection.id==='sec-schedule'){
+      var panel=document.getElementById('admin-panel');
+      if(panel){panel.classList.toggle('show');if(panel.classList.contains('show'))renderEditor();}
+    } else if(activeSection && activeSection.id==='sec-about'){
+      var ytP=document.getElementById('yt-admin-panel');
+      if(ytP) ytP.style.display=ytP.style.display==='none'?'block':'none';
+    } else {
+      var schedLink=document.querySelector('.nav-links a[onclick*="schedule"]');
+      showSection('schedule',schedLink);
+    }
   } else { openAdmin(); }
 });
 document.getElementById('admin-overlay').addEventListener('click',function(e){ if(e.target===this) closeAdmin(); });
