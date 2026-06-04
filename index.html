@@ -263,8 +263,8 @@ border-color:var(--red);box-shadow:0 0 16px rgba(255,0,51,.25)}
 .admin-box{background:rgba(255,255,255,0.06);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:2.5rem 2rem;width:340px;text-align:center;position:relative;box-shadow:inset 0 1px 0 rgba(255,255,255,0.1),0 0 80px rgba(0,0,0,0.5)}
 .admin-box h2{font-family:'Space Mono',monospace;font-size:1.5rem;margin-bottom:.4rem;color:var(--red);letter-spacing:.08em;text-transform:uppercase}
 .admin-box p{font-size:13px;color:var(--muted2);margin-bottom:1.5rem}
-.admin-box input[type="password"]{width:100%;background:var(--bg4);border:1px solid rgba(255,255,255,.08);border-radius:5px;color:var(--text);font-family:'Space Mono',monospace;font-size:15px;padding:11px 14px;outline:none;color-scheme:dark;margin-bottom:1rem;text-align:center;letter-spacing:.2em}
-.admin-box input[type="password"]:focus{border-color:rgba(255,0,51,.4);box-shadow:0 0 0 3px rgba(255,0,51,.06)}
+.admin-box input[type="password"],.admin-box input[type="text"]{width:100%;background:var(--bg4);border:1px solid rgba(255,255,255,.08);border-radius:5px;color:var(--text);font-family:'Space Mono',monospace;font-size:15px;padding:11px 14px;outline:none;color-scheme:dark;margin-bottom:1rem;text-align:center;letter-spacing:.2em}
+.admin-box input[type="password"],.admin-box input[type="text"]:focus{border-color:rgba(255,0,51,.4);box-shadow:0 0 0 3px rgba(255,0,51,.06)}
 .admin-box .pw-btn{width:100%;background:var(--red);color:#fff;border:none;border-radius:5px;padding:11px;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .15s;letter-spacing:.1em;text-transform:uppercase}
 .admin-box .pw-btn:hover{opacity:.85}
 .admin-box .pw-error{color:#ff6677;font-size:12px;margin-top:.75rem;min-height:18px;font-family:'Space Mono',monospace}
@@ -896,9 +896,12 @@ body.summer .water-wrapper{bottom:-15px;opacity:1}
 <div id="admin-overlay">
   <div class="admin-box">
     <button class="admin-close" onclick="closeAdmin()">×</button>
-    <h2>Admin</h2>
-    <p>Add meg a jelszót az időpontok szerkesztéséhez</p>
-    <input type="password" id="pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkPw()">
+    <h2 style="margin-bottom:.3rem">Bejelentkezés</h2>
+    <p style="margin-bottom:1.2rem">Admin hozzáférés szükséges</p>
+    <input type="text" id="user-input" placeholder="Felhasználónév" autocomplete="off"
+      style="margin-bottom:8px"
+      onkeydown="if(event.key==='Enter')document.getElementById('pw-input').focus()">
+    <input type="password" id="pw-input" placeholder="Jelszó" onkeydown="if(event.key==='Enter')checkPw()">
     <button class="pw-btn" onclick="checkPw()">Belépés</button>
     <div class="pw-error" id="pw-error"></div>
   </div>
@@ -1417,6 +1420,7 @@ body.summer .water-wrapper{bottom:-15px;opacity:1}
 </footer>
 
 <script>
+var ADMIN_USER_HASH = '835d6dc88b708bc646d6db82c853ef4182fabbd4a8de59c213f2b5ab3ae7d9be';
 var ADMIN_HASH = 'e21deaf105b8fae0b33e33daf9e36b238ef3fa3f9eacef516c14423a7f107cc6';
 var DAYS        = ['Hétfő','Kedd','Szerda','Csütörtök','Péntek','Szombat','Vasárnap'];
 var TWITCH_NAME = 'MrMooris_';
@@ -1928,11 +1932,19 @@ function checkLive(){
 function openAdmin(){ document.getElementById('admin-overlay').classList.add('show'); setTimeout(function(){document.getElementById('pw-input').focus();},100); }
 function closeAdmin(){ document.getElementById('admin-overlay').classList.remove('show'); document.getElementById('pw-input').value=''; document.getElementById('pw-error').textContent=''; }
 async function checkPw(){
+  var user=document.getElementById('user-input').value;
   var val=document.getElementById('pw-input').value;
+  if(!user || !val){
+    document.getElementById('pw-error').textContent='Töltsd ki mindkét mezőt!';
+    return;
+  }
   var enc=new TextEncoder().encode(val);
   var buf=await crypto.subtle.digest('SHA-256',enc);
   var hash=Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
-  if(hash===ADMIN_HASH){
+  var uenc=new TextEncoder().encode(user);
+  var ubuf=await crypto.subtle.digest('SHA-256',uenc);
+  var uhash=Array.from(new Uint8Array(ubuf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+  if(hash===ADMIN_HASH && uhash===ADMIN_USER_HASH){
     closeAdmin();
     window._adminOk = true;
     if(window._pendingCatAdmin){
