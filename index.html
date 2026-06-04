@@ -798,6 +798,15 @@ body.summer .water-wrapper{bottom:-15px;opacity:1}
 #cat-sw-auto.active-mode{border-color:rgba(255,255,255,.25);box-shadow:inset 1px 1px 2px rgba(0,0,0,.5),0 0 20px rgba(255,255,255,.1);background:linear-gradient(145deg,#1a1a1a,#222)}
 #cat-sw-auto.active-mode .icon-circle{background:#fff;box-shadow:0 0 10px rgba(255,255,255,.3);filter:grayscale(0%);opacity:1}
 #cat-sw-auto input:checked + .slider{background:#333}
+
+/* ── ROADMAP ─────────────────────────────────────── */
+.roadmap-item{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:.9rem 1.2rem}
+.roadmap-dot{width:8px;height:8px;border-radius:50%;background:var(--red);box-shadow:0 0 8px var(--red);flex-shrink:0}
+.roadmap-text{font-size:.9rem;color:var(--text);line-height:1.4}
+.roadmap-badge{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:2px 7px;border-radius:20px;font-family:'Space Mono',monospace;white-space:nowrap;flex-shrink:0}
+.roadmap-date{font-size:10px;color:var(--muted2);font-family:'Space Mono',monospace;margin-left:auto;white-space:nowrap;flex-shrink:0}
+input[type="datetime-local"]{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:var(--text);font-size:11px;outline:none;cursor:pointer}
+input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.5;cursor:pointer}
 </style>
 </head>
 <body>
@@ -1395,6 +1404,34 @@ body.summer .water-wrapper{bottom:-15px;opacity:1}
         <button class="editor-logout" onclick="logout()">Kijelentkezés</button>
       </div>
       <div class="editor-rows" id="editor-rows"></div>
+
+      <!-- Roadmap szerkesztő -->
+      <div style="margin-top:1.5rem;padding-top:1.2rem;border-top:1px solid rgba(255,255,255,.06)">
+        <div class="editor-title" style="margin-bottom:.8rem">📋 Roadmap</div>
+        <div id="roadmap-editor-rows" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <select id="roadmap-status" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:6px 10px;color:var(--text);font-size:12px;cursor:pointer;outline:none">
+            <option value="🔴">🔴 Hamarosan</option>
+            <option value="🟡">🟡 Tervezés alatt</option>
+            <option value="🟢">🟢 Folyamatban</option>
+          </select>
+          <input type="text" id="roadmap-new-text" placeholder="pl. Minecraft sorozat" style="flex:1;min-width:150px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:6px 10px;color:var(--text);font-size:12px;outline:none" onkeydown="if(event.key==='Enter')addRoadmapItem()">
+          <div style="position:relative;display:flex;align-items:center">
+            <span style="position:absolute;left:8px;font-size:13px;pointer-events:none">🗓</span>
+            <input type="datetime-local" id="roadmap-new-date" style="padding:6px 10px 6px 28px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:var(--text);font-size:11px;outline:none;font-family:'Space Mono',monospace;color-scheme:dark;cursor:pointer">
+          </div>
+          <button onclick="addRoadmapItem()" style="background:var(--red);border:none;border-radius:8px;padding:6px 14px;color:#fff;font-weight:700;font-size:11px;cursor:pointer;font-family:'Space Mono',monospace">+ HOZZÁAD</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Roadmap -->
+    <div style="margin-top:3rem">
+      <p class="section-eyebrow">Hamarosan</p>
+      <h3 style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;margin-bottom:1.5rem">Mi jön a csatornán?</h3>
+      <div id="roadmap-list" style="display:flex;flex-direction:column;gap:10px">
+        <div class="roadmap-item"><span class="roadmap-dot"></span><span class="roadmap-text">Ide kerülnek a tervek...</span></div>
+      </div>
     </div>
   </div>
 </div>
@@ -1644,6 +1681,83 @@ function userToggleSeason(cb){
   if(isOn){ initSeasonalEffects(); } else { clearSeasonalEffects(); }
   updateSeasonToggleBtn();
 }
+
+
+// ── ROADMAP ──────────────────────────────────────
+var roadmapItems = [];
+
+function loadRoadmap(){
+  fetch('https://mooris-web-default-rtdb.europe-west1.firebasedatabase.app/roadmap.json')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d && Array.isArray(d)) roadmapItems = d;
+      else if(d) roadmapItems = Object.values(d);
+      renderRoadmap();
+    }).catch(function(){renderRoadmap();});
+}
+
+function saveRoadmap(){
+  fetch('https://mooris-web-default-rtdb.europe-west1.firebasedatabase.app/roadmap.json',{
+    method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(roadmapItems)
+  }).catch(function(){});
+  renderRoadmap();
+}
+
+function renderRoadmap(){
+  // Publikus lista
+  var list = document.getElementById('roadmap-list');
+  if(list){
+    if(roadmapItems.length===0){
+      list.innerHTML='<div class="roadmap-item"><span class="roadmap-dot"></span><span class="roadmap-text" style="color:var(--muted2)">Hamarosan...</span></div>';
+    } else {
+      list.innerHTML = roadmapItems.map(function(item){
+        var color = item.status==='🟢'?'#22c55e':item.status==='🟡'?'#eab308':'#ff0033';
+        var label = item.status==='🟢'?'Folyamatban':item.status==='🟡'?'Tervezés alatt':'Hamarosan';
+        var cleanDate = item.date ? item.date.replace(/^\d{4}\. /,'') : ''; var dateHtml = cleanDate ? '<span class="roadmap-date">🗓 '+cleanDate+'</span>' : '';
+        return '<div class="roadmap-item">'
+          +'<span class="roadmap-dot" style="background:'+color+';box-shadow:0 0 8px '+color+'"></span>'
+          +'<span class="roadmap-badge" style="background:'+color+'22;border:1px solid '+color+'55;color:'+color+'">'+label+'</span>'
+          +'<span class="roadmap-text">'+item.text+'</span>'
+          +dateHtml
+          +'</div>';
+      }).join('');
+    }
+  }
+  // Admin editor lista
+  var editorList = document.getElementById('roadmap-editor-rows');
+  if(!editorList) return;
+  editorList.innerHTML = roadmapItems.map(function(item, i){
+    return '<div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border-radius:8px;padding:6px 10px">'
+      +'<span style="font-size:14px">'+item.status+'</span>'
+      +'<span style="flex:1;font-size:12px;color:var(--text)">'+item.text+(item.date?' <span style="font-size:10px;color:var(--muted2);font-family:Space Mono,monospace">'+item.date+'</span>':'')+'</span>'
+      +'<button onclick="removeRoadmapItem('+i+')" style="background:rgba(255,0,51,.1);border:1px solid rgba(255,0,51,.2);border-radius:6px;padding:2px 8px;color:var(--red);font-size:10px;cursor:pointer">×</button>'
+      +'</div>';
+  }).join('');
+}
+
+function addRoadmapItem(){
+  var text = document.getElementById('roadmap-new-text').value.trim();
+  var status = document.getElementById('roadmap-status').value;
+  var rawDate = document.getElementById('roadmap-new-date').value;
+  var date = '';
+  if(rawDate){
+    var d = new Date(rawDate);
+    var months=['jan.','feb.','már.','ápr.','máj.','jún.','júl.','aug.','szep.','okt.','nov.','dec.'];
+    date = months[d.getMonth()]+' '+d.getDate()+'. '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  }
+  if(!text) return;
+  roadmapItems.push({status:status, text:text, date:date||''});
+  document.getElementById('roadmap-new-text').value = '';
+  document.getElementById('roadmap-new-date').value = '';
+  saveRoadmap();
+}
+
+function removeRoadmapItem(i){
+  roadmapItems.splice(i,1);
+  saveRoadmap();
+}
+
+loadRoadmap();
 
 function switchSetupTab(tab, el){
   document.querySelectorAll('.setup-panel').forEach(function(p){ p.classList.remove('active'); });
@@ -1952,16 +2066,14 @@ async function checkPw(){
       setTimeout(function(){ openCatAdmin(); }, 150);
       return;
     }
-    var notif=document.createElement('div');
-    notif.innerHTML='<b>✓ Admin belépve</b><br><span style="font-size:10px;opacity:.7">Rólam → YouTube &nbsp;|&nbsp; Menetrend → Időpontok</span>';
-    notif.style.cssText='position:fixed;top:70px;right:20px;background:#111;border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:12px 18px;font-size:12px;color:#fff;z-index:9999;font-family:Space Mono,monospace;box-shadow:0 4px 24px rgba(0,0,0,.6);line-height:1.6';
-    document.body.appendChild(notif);
-    setTimeout(function(){notif.style.transition='opacity .5s';notif.style.opacity='0';setTimeout(function(){notif.remove();},500);},3000);
-    var activeSection=document.querySelector('.page-section.active');
-    if(activeSection){
-      if(activeSection.id==='sec-schedule'){var panel=document.getElementById('admin-panel');if(panel){panel.classList.add('show');renderEditor();}}
-      else if(activeSection.id==='sec-about'){var ytP=document.getElementById('yt-admin-panel');if(ytP)ytP.style.display='block';}
-    }
+    // © gombból - automatikusan menetrendre navigál és megnyitja a szerkesztőt
+    closeAdmin();
+    var schedLink = document.querySelector('.nav-links a[onclick*="schedule"]');
+    showSection('schedule', schedLink);
+    setTimeout(function(){
+      var panel = document.getElementById('admin-panel');
+      if(panel){ panel.classList.add('show'); renderEditor(); }
+    }, 200);
     } else {
     document.getElementById('pw-error').textContent='Hibás jelszó!';
     document.getElementById('pw-input').value='';
