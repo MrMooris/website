@@ -2885,5 +2885,70 @@ setTimeout(function(){
 }, 500);
 
 </script>
+<script>
+// ── ANIMATED FAVICON (törlésnél: ezt a blokkot töröld) ──
+(function(){
+  var canvas = document.createElement('canvas');
+  canvas.width = 64; canvas.height = 64;
+  var ctx = canvas.getContext('2d');
+  var link = document.querySelector('link[rel="icon"]');
+  if(!link){ link=document.createElement('link'); link.rel='icon'; document.head.appendChild(link); }
+
+  function tx(x){ return (x-8)/72*58+3; }
+  function ty(y){ return (y-30)/42*48+8; }
+
+  var t = 0;
+
+  function drawCat(alpha, blur){
+    ctx.beginPath();
+    ctx.moveTo(tx(15),ty(65)); ctx.lineTo(tx(15),ty(48));
+    ctx.bezierCurveTo(tx(15),ty(40),tx(17),ty(35),tx(21),ty(35));
+    ctx.lineTo(tx(26),ty(45));
+    ctx.bezierCurveTo(tx(33),ty(42),tx(42),ty(42),tx(49),ty(45));
+    ctx.lineTo(tx(54),ty(35));
+    ctx.bezierCurveTo(tx(58),ty(35),tx(60),ty(40),tx(60),ty(48));
+    ctx.lineTo(tx(60),ty(56));
+    ctx.bezierCurveTo(tx(62.5),ty(50),tx(67),ty(42),tx(72),ty(45));
+    ctx.bezierCurveTo(tx(76),ty(47),tx(75),ty(55),tx(72),ty(65));
+    ctx.strokeStyle = 'rgba(255,255,255,'+alpha+')';
+    ctx.lineWidth = 2.2;
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.shadowBlur = blur;
+    ctx.shadowColor = 'rgba(255,255,255,'+alpha+')';
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+  }
+
+  function drawFrame(){
+    ctx.clearRect(0,0,64,64);
+    // Pislákolás: szinuszos, 0.3-1.0 között
+    var glow = 0.65 + 0.35 * Math.sin(t * 0.05);
+    var blurAmt = 4 + 10 * glow;
+
+    // Külső glow réteg
+    drawCat(glow * 0.4, blurAmt * 2);
+    // Fő körvonal
+    drawCat(glow, blurAmt);
+
+    // Szemek
+    var eyeAlpha = 0.4 + 0.6 * glow;
+    ctx.beginPath();
+    ctx.arc(tx(31),ty(51),2.2,0,Math.PI*2);
+    ctx.fillStyle = 'rgba(255,255,255,'+eyeAlpha+')';
+    ctx.shadowBlur = 6 * glow; ctx.shadowColor = '#fff';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(tx(44),ty(51),2.2,0,Math.PI*2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    t++;
+    link.href = canvas.toDataURL('image/png');
+    requestAnimationFrame(drawFrame);
+  }
+  requestAnimationFrame(drawFrame);
+})();
+// ── ANIMATED FAVICON VÉGE ────────────────────────
+</script>
 </body>
 </html>
