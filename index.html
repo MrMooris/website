@@ -2367,10 +2367,10 @@ renderCrew();
   var el = document.getElementById('nav-greeting');
   if(!el) return;
   var h = new Date().getHours();
-  var g = h>=5&&h<10?'☀️ Jó reggelt!'
-        : h>=10&&h<12?'🌤️ Jó délelőttöt!'
-        : h>=12&&h<14?'🌞 Jó napot!'
-        : h>=14&&h<18?'☕ Jó délutánt!'
+  var g = h>=5&&h<12?'☀️ Jó reggelt!'
+        : h>=12&&h<14?'🌞 Ebéd idő!'
+        : h>=14&&h<17?'☕ Jó délutánt!'
+        : h>=17&&h<18?'🍵 Tea idő!'
         : h>=18&&h<22?'🌙 Jó estét!'
         : h>=22?'🌃 Jó éjszakát!'
         : '🦉 Te is éjszakázol?';
