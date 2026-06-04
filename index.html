@@ -1956,7 +1956,7 @@ async function checkPw(){
     document.getElementById('pw-input').focus();
   }
 }
-function logout(){ window._adminOk=false; }
+function logout(){ var panel=document.getElementById('admin-panel'); if(panel) panel.classList.remove('show'); window._adminOk=false; }
 
 document.getElementById('footer-trigger').addEventListener('click',function(){
   if(window._adminOk){
