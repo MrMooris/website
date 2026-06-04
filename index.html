@@ -2863,12 +2863,17 @@ function initSeasonalEffects(){
 function toggleSeason(){
   var enabled=document.getElementById('season-enabled').checked;
   localStorage.setItem('season-enabled',enabled);
+  // Firebase-be mentés
+  var override=localStorage.getItem('season-override')||'auto';
+  fetch('https://mooris-web-default-rtdb.europe-west1.firebasedatabase.app/season.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({override:override,enabled:enabled})}).catch(function(){});
   if(enabled) initSeasonalEffects(); else clearSeasonalEffects();
   updateSeasonToggleBtn();
 }
 function saveSeason(){
   var val=document.getElementById('season-override').value;
   localStorage.setItem('season-override',val);
+  // Firebase-be mentés - mindenki látja
+  fetch('https://mooris-web-default-rtdb.europe-west1.firebasedatabase.app/season.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({override:val,enabled:localStorage.getItem('season-enabled')!=='false'})}).catch(function(){});
   clearSeasonalEffects();
   if(val!=='off'&&localStorage.getItem('season-enabled')!=='false') initSeasonalEffects();
   var lbl=document.getElementById('current-season-label');
@@ -2877,12 +2882,18 @@ function saveSeason(){
 }
 
 // Auto-init ha be van kapcsolva
-setTimeout(function(){
+// Firebase-ből töltjük az évszak beállítást
+fetch('https://mooris-web-default-rtdb.europe-west1.firebasedatabase.app/season.json').then(function(r){return r.json();}).then(function(d){
+  if(d && typeof d === 'object'){
+    if(d.override) localStorage.setItem('season-override', d.override);
+    localStorage.setItem('season-enabled', d.enabled !== false ? 'true' : 'false');
+  }
+}).catch(function(){}).finally(function(){
   if(localStorage.getItem('season-enabled')!=='false'){
     initSeasonalEffects();
   }
   updateSeasonToggleBtn();
-}, 500);
+});
 
 </script>
 <script>
