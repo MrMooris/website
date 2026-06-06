@@ -12,15 +12,14 @@
   <!-- Open Graph (Discord, Facebook, WhatsApp) -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://mrmooris.github.io/website/">
-  <meta property="og:title" content="Mooris">
+  <meta property="og:title" content="Mooris — Magyar Streamer">
   <meta property="og:description" content="Horror, autós játékok, Elden Ring, CS2 és még sok más. Kövess Twitchen, TikTokon, YouTube-on és Kicken!">
   <meta property="og:site_name" content="Mooris">
   <meta property="og:locale" content="hu_HU">
 
   <!-- Twitter / X kártya -->
-  <meta property="og:image" content="">
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Mooris">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Mooris — Magyar Streamer">
   <meta name="twitter:description" content="Horror, autós játékok, Elden Ring, CS2 és még sok más. Kövess Twitchen, TikTokon, YouTube-on és Kicken!">
   <!-- ═══ SEO META TAGEK VÉGE ════════════════════════════════════════════════ -->
   <meta charset="UTF-8">
@@ -901,9 +900,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
   #cat-admin-modal{width:98vw!important;padding:1rem!important}
 }
 
-.admin-box input:focus{outline:none!important;border-color:rgba(255,0,51,.5)!important}
 </style>
-
 </head>
 <body>
 <canvas id="particle-canvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1"></canvas>
@@ -1438,7 +1435,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
           <img src="Mazli.jpg" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.15)">
           <div>
             <div style="font-weight:800;font-size:1rem;color:var(--text)">Mooris</div>
-            <div style="font-size:11px;color:var(--muted2)">Streamer / Co-creator</div>
+            <div style="font-size:11px;color:var(--muted2)">Streamer / Editor</div>
           </div>
         </div>
         
@@ -1457,7 +1454,6 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
             <div style="font-size:11px;color:var(--muted2)">Streamer / Editor</div>
           </div>
         </div>
-        
         <a href="https://www.twitch.tv/arv0n" target="_blank" style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#9147ff;text-decoration:none;font-family:'Space Mono',monospace">
           <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
           twitch.tv/arv0n
@@ -1682,7 +1678,6 @@ loadGoals();
 setInterval(loadGoals,300000);
 
 function saveYTCount(){
-  if(!fbAuth.currentUser) return;
   var val=parseInt(document.getElementById('yt-count-input').value)||0;
   localStorage.setItem('mooris-yt-count',val);
   fetch('https://mooris-web-default-rtdb.europe-west1.firebasedatabase.app/yt_count.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(val)}).catch(function(){});
@@ -1860,28 +1855,6 @@ function removeRoadmapItem(i){
 
 loadRoadmap();
 
-
-// ── FIREBASE AUTH ─────────────────────────────────
-fbAuth.onAuthStateChanged(function(user){
-  if(user){
-    window._adminOk = true;
-    closeAdmin();
-    if(window._pendingCatAdmin){
-      window._pendingCatAdmin = false;
-      setTimeout(function(){ openCatAdmin(); }, 150);
-      return;
-    }
-    var schedLink = document.querySelector('.nav-links a[onclick*="schedule"]');
-    showSection('schedule', schedLink);
-    setTimeout(function(){
-      var panel = document.getElementById('admin-panel');
-      if(panel){ panel.classList.add('show'); renderEditor(); }
-    }, 200);
-  } else {
-    window._adminOk = false;
-  }
-});
-
 function switchSetupTab(tab, el){
   document.querySelectorAll('.setup-panel').forEach(function(p){ p.classList.remove('active'); });
   document.querySelectorAll('.setup-tab').forEach(function(t){ t.classList.remove('active'); });
@@ -1990,7 +1963,6 @@ function switchStream(to) {
 
 // ── Menetrend ─────────────────────────────────────
 function save(){
-  if(!fbAuth.currentUser) return;
   localStorage.setItem('mooris-schedule', JSON.stringify(schedule));
   fetch('https://mooris-web-default-rtdb.europe-west1.firebasedatabase.app/schedule.json', {
     method: 'PUT',
@@ -2017,7 +1989,7 @@ function renderDisplay(){
   });
 }
 function renderEditor(){
-  if(!fbAuth.currentUser){ document.getElementById('admin-panel').classList.remove('show'); return; }
+  if(!fbAuth || !fbAuth.currentUser){ document.getElementById('admin-panel').classList.remove('show'); return; }
   var rows=document.getElementById('editor-rows');
   if(!rows) return;
   rows.innerHTML='';
@@ -2182,14 +2154,21 @@ async function checkPw(){
   }
   if(errEl) errEl.textContent='';
   if(btn){ btn.textContent='...'; btn.disabled=true; }
+  if(!fbAuth){
+    if(errEl) errEl.textContent='Firebase még nem töltött be, próbáld újra!';
+    if(btn){ btn.textContent='Belépés'; btn.disabled=false; }
+    return;
+  }
   try {
+    window._pendingAdminLogin = true;
     await fbAuth.signInWithEmailAndPassword(email, password);
   } catch(err) {
+    window._pendingAdminLogin = false;
     if(errEl) errEl.textContent='Hibás email vagy jelszó!';
     if(btn){ btn.textContent='Belépés'; btn.disabled=false; }
   }
 }
-function logout(){ var panel=document.getElementById('admin-panel'); if(panel) panel.classList.remove('show'); window._adminOk=false; fbAuth.signOut(); }
+function logout(){ var panel=document.getElementById('admin-panel'); if(panel) panel.classList.remove('show'); window._adminOk=false; if(fbAuth) fbAuth.signOut(); }
 
 document.getElementById('footer-trigger').addEventListener('click',function(){
   if(window._adminOk){
@@ -2717,8 +2696,8 @@ function scheduleTabClick(){
 
 var CREW = [
   { name: 'arv0n (Grim)', platform: 'twitch', url: 'https://www.twitch.tv/arv0n', twitchName: 'arv0n' },
-  { name: 'itsmemyllo', platform: 'twitch', url: 'https://myllo.hu/' },
-  { name: 'krypfirst',  platform: 'twitch', url: 'https://www.twitch.tv/krypfirst'  }
+  { name: 'itsmemyllo',   platform: 'twitch', url: 'https://myllo.hu/' },
+  { name: 'krypfirst',    platform: 'twitch', url: 'https://www.twitch.tv/krypfirst' }
 ];
 
 var TWITCH_ICON = '<svg viewBox="0 0 24 24" fill="currentColor" width="10" height="10"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>';
@@ -2735,7 +2714,7 @@ function renderCrew(){
     card.rel = 'noopener';
     card.innerHTML =
       '<div class="crew-avatar-wrap">'
-        + '<div class="crew-avatar-fallback" id="crew-av-'+(s.twitchName||s.name)+'">'+initials+'</div>'
+        + '<div class="crew-avatar-fallback" id="crew-av-'+s.name+'">'+initials+'</div>'
       + '</div>'
       + '<div class="crew-info">'
         + '<div class="crew-name">'+s.name+'</div>'
@@ -2754,7 +2733,148 @@ function renderCrew(){
   });
 }
 
+var crewOpen = false;
+function toggleCrew(){ crewOpen ? closeCrew() : openCrew(); }
+function openCrew(){
+  crewOpen = true;
+  document.getElementById('crew-panel').classList.add('open');
+  document.getElementById('crew-overlay').classList.add('open');
+}
+function closeCrew(){
+  crewOpen = false;
+  document.getElementById('crew-panel').classList.remove('open');
+  document.getElementById('crew-overlay').classList.remove('open');
+}
+
 renderCrew();
+</script>
+
+
+<div
+<div
+
+<!-- SUPPORT MODALS -->
+<div class="support-modal" id="smodal-twitch">
+  <div class="support-modal-inner">
+    <button class="support-modal-close" onclick="closeSupportPopup('smodal-twitch')">×</button>
+    <div class="support-modal-title">🟣 Twitch Sub előnyök</div>
+    <div class="popup-emotes">
+      <div class="popup-emote">😸</div>
+      <div class="popup-emote">🎮</div>
+      <div class="popup-emote">👑</div>
+      <div class="popup-emote">⚔️</div>
+    </div>
+    <ul class="popup-benefits">
+      <li>Egyedi csatorna emote-ok</li>
+      <li>Exkluzív sub badge</li>
+      <li>Ad-mentes nézés</li>
+      <li>Közvetlen csatorna támogatás</li>
+    </ul>
+  </div>
+</div>
+
+<div class="support-modal" id="smodal-follow">
+  <div class="support-modal-inner">
+    <button class="support-modal-close" onclick="closeSupportPopup('smodal-follow')">×</button>
+    <div class="support-modal-title">Platformok & Megosztás</div>
+    <div class="popup-icon-grid">
+
+      <div class="plat-wrap">
+        <button class="popup-icon-btn" style="color:#9147ff" onclick="togglePlatDrop(this)">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
+        </button>
+        <div class="plat-dropdown">
+          <a href="https://www.twitch.tv/MrMooris_" target="_blank">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M12 4.5C7 4.5 3 8.5 3 13.5s4 9 9 9 9-4 9-9-4-9-9-9zm0 16c-3.9 0-7-3.1-7-7s3.1-7 7-7 7 3.1 7 7-3.1 7-7 7zm1-11h-2v6l5.25 3.15.75-1.23-4-2.37V9.5z"/></svg>
+            Megtekintés
+          </a>
+          <button onclick="copyLink('https://www.twitch.tv/MrMooris_')">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+            Megosztás
+          </button>
+        </div>
+      </div>
+
+      <div class="plat-wrap">
+        <button class="popup-icon-btn" style="color:#ff0033" onclick="togglePlatDrop(this)">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        </button>
+        <div class="plat-dropdown">
+          <a href="https://www.youtube.com/@MrMooris" target="_blank">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M12 4.5C7 4.5 3 8.5 3 13.5s4 9 9 9 9-4 9-9-4-9-9-9zm0 16c-3.9 0-7-3.1-7-7s3.1-7 7-7 7 3.1 7 7-3.1 7-7 7zm1-11h-2v6l5.25 3.15.75-1.23-4-2.37V9.5z"/></svg>
+            Megtekintés
+          </a>
+          <button onclick="copyLink('https://www.youtube.com/@MrMooris')">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+            Megosztás
+          </button>
+        </div>
+      </div>
+
+      <div class="plat-wrap">
+        <button class="popup-icon-btn" style="color:#53fc18" onclick="togglePlatDrop(this)">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M2 2v20h4v-6l2 2 6 4h5l-8-8 8-8h-5l-6 4-2 2V2H2z"/></svg>
+        </button>
+        <div class="plat-dropdown">
+          <a href="https://kick.com/mrmooriss" target="_blank">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M12 4.5C7 4.5 3 8.5 3 13.5s4 9 9 9 9-4 9-9-4-9-9-9zm0 16c-3.9 0-7-3.1-7-7s3.1-7 7-7 7 3.1 7 7-3.1 7-7 7zm1-11h-2v6l5.25 3.15.75-1.23-4-2.37V9.5z"/></svg>
+            Megtekintés
+          </a>
+          <button onclick="copyLink('https://kick.com/mrmooriss')">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+            Megosztás
+          </button>
+        </div>
+      </div>
+
+      <div class="plat-wrap">
+        <button class="popup-icon-btn" style="color:#fff" onclick="togglePlatDrop(this)">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.78a8.18 8.18 0 004.78 1.52V6.85a4.83 4.83 0 01-1.01-.16z"/></svg>
+        </button>
+        <div class="plat-dropdown">
+          <a href="https://www.tiktok.com/@mooris__" target="_blank">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M12 4.5C7 4.5 3 8.5 3 13.5s4 9 9 9 9-4 9-9-4-9-9-9zm0 16c-3.9 0-7-3.1-7-7s3.1-7 7-7 7 3.1 7 7-3.1 7-7 7zm1-11h-2v6l5.25 3.15.75-1.23-4-2.37V9.5z"/></svg>
+            Megtekintés
+          </a>
+          <button onclick="copyLink('https://www.tiktok.com/@mooris__')">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+            Megosztás
+          </button>
+        </div>
+      </div>
+
+      <button class="popup-icon-btn" title="Oldal megosztása" onclick="shareWebsite()" style="color:#aaa">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+      </button>
+
+    </div>
+    
+  </div>
+</div>
+<script>
+
+</script>
+<script>
+// ── GREETING ─────────────────────────────────────
+(function(){
+  var el = document.getElementById('hero-greeting');
+  if(!el) return;
+  var h = new Date().getHours();
+  var greetings = [
+    [5,  10, '☀️ Jó reggelt!'],
+    [10, 12, '🌤️ Jó délelőttöt!'],
+    [12, 14, '🌞 Jó napot!'],
+    [14, 18, '☕ Jó délutánt!'],
+    [18, 22, '🌙 Jó estét!'],
+    [22, 24, '🌃 Jó éjszakát!'],
+    [0,   5, '🦉 Te is éjszakázol?']
+  ];
+  var text = '👋 Szia!';
+  for(var i=0;i<greetings.length;i++){
+    if(h>=greetings[i][0] && h<greetings[i][1]){ text=greetings[i][2]; break; }
+  }
+  el.textContent = text;
+})();
 </script>
 <script>
 // ── NAV GREETING (törlésnél: ezt töröld) ──────────
@@ -2845,7 +2965,7 @@ renderCrew();
 var catAdminOpen = false;
 
 function openCatAdmin(){
-  if(!fbAuth.currentUser){ window._pendingCatAdmin = true; openAdmin(); return; }
+  if(!window._adminOk){ window._pendingCatAdmin = true; openAdmin(); return; }
   document.getElementById('cat-admin-overlay').classList.add('show');
   catAdminOpen = true;
   // YT input feltöltése
@@ -2877,7 +2997,6 @@ function closeCatAdmin(){
 function catLogout(){
   closeCatAdmin();
   logout();
-  fbAuth.signOut();
 }
 
 function switchCatTab(tab, el){
@@ -2894,7 +3013,7 @@ document.addEventListener('click', function(e){
 
 // Menetrend szerkesztő a cat admin-ban
 function renderCatEditor(){
-  if(!fbAuth.currentUser){ closeCatAdmin(); return; }
+  if(!fbAuth || !fbAuth.currentUser){ closeCatAdmin(); return; }
   var container = document.getElementById('cat-editor-rows');
   if(!container) return;
   var days = ['Hétfő','Kedd','Szerda','Csütörtök','Péntek','Szombat','Vasárnap'];
@@ -2941,7 +3060,6 @@ function renderCatEditor(){
 }
 
 function saveCatYT(){
-  if(!fbAuth.currentUser) return;
   var val = parseInt(document.getElementById('cat-yt-input').value)||0;
   localStorage.setItem('mooris-yt-count', val);
   fetch('https://mooris-web-default-rtdb.europe-west1.firebasedatabase.app/yt_count.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(val)}).catch(function(){});
@@ -3148,84 +3266,85 @@ function saveSeason(){
 }
 
 // Auto-init ha be van kapcsolva
-// Évszak betöltés a Firebase init után történik
+// Firebase-ből töltjük az évszak beállítást
+fetch('https://mooris-web-default-rtdb.europe-west1.firebasedatabase.app/season.json').then(function(r){return r.json();}).then(function(d){
+  if(d && typeof d === 'object'){
+    if(d.override) localStorage.setItem('season-override', d.override);
+    localStorage.setItem('season-enabled', d.enabled !== false ? 'true' : 'false');
+  }
+}).catch(function(){}).finally(function(){
+  if(localStorage.getItem('season-enabled')!=='false'){
+    initSeasonalEffects();
+  }
+  updateSeasonToggleBtn();
+});
 
 </script>
 <script>
 
-</script>
-<script>
-// Grim Twitch avatar
-fetch('https://decapi.me/twitch/avatar/arv0n')
-  .then(function(r){return r.text();})
-  .then(function(url){
-    var img = document.getElementById('grim-avatar');
-    if(img && url && url.startsWith('http')) img.src = url;
-  }).catch(function(){});
 </script>
 
 <script>
 (function(){
   function loadScript(src, cb){
-    var s = document.createElement('script');
-    s.src = src;
-    s.onload = cb;
-    s.onerror = function(){ console.warn('Firebase script failed:', src); cb(); };
+    var s=document.createElement('script');
+    s.src=src;
+    s.onload=cb;
+    s.onerror=function(){ cb(); };
     document.head.appendChild(s);
   }
-  var BASE = 'https://www.gstatic.com/firebasejs/10.12.0/';
-  loadScript(BASE+'firebase-app-compat.js', function(){
-    loadScript(BASE+'firebase-auth-compat.js', function(){
-      loadScript(BASE+'firebase-database-compat.js', function(){
-        var config = {
-          apiKey: "AIzaSyDiOFW5sI9lfexz7XjsMQGFu_e0sKc8p_4",
-          authDomain: "mooris-web.firebaseapp.com",
-          databaseURL: "https://mooris-web-default-rtdb.europe-west1.firebasedatabase.app",
-          projectId: "mooris-web",
-          storageBucket: "mooris-web.firebasestorage.app",
-          messagingSenderId: "373636498914",
-          appId: "1:373636498914:web:6d352834ca22fcabe7e5bb"
+  var B='https://www.gstatic.com/firebasejs/10.12.0/';
+  loadScript(B+'firebase-app-compat.js',function(){
+    loadScript(B+'firebase-auth-compat.js',function(){
+      loadScript(B+'firebase-database-compat.js',function(){
+        var cfg={
+          apiKey:"AIzaSyDiOFW5sI9lfexz7XjsMQGFu_e0sKc8p_4",
+          authDomain:"mooris-web.firebaseapp.com",
+          databaseURL:"https://mooris-web-default-rtdb.europe-west1.firebasedatabase.app",
+          projectId:"mooris-web",
+          storageBucket:"mooris-web.firebasestorage.app",
+          messagingSenderId:"373636498914",
+          appId:"1:373636498914:web:6d352834ca22fcabe7e5bb"
         };
-        if(!firebase.apps.length) firebase.initializeApp(config);
-        fbAuth = firebase.auth();
-        fbDb = firebase.database();
-        // Auth state listener
+        if(!firebase.apps.length) firebase.initializeApp(cfg);
+        fbAuth=firebase.auth();
+        fbDb=firebase.database();
         fbAuth.onAuthStateChanged(function(user){
           if(user){
-            window._adminOk = true;
-            closeAdmin();
-            if(window._pendingCatAdmin){
-              window._pendingCatAdmin = false;
-              setTimeout(function(){ openCatAdmin(); }, 150);
-              return;
+            window._adminOk=true;
+            if(window._pendingAdminLogin){
+              window._pendingAdminLogin=false;
+              closeAdmin();
+              if(window._pendingCatAdmin){
+                window._pendingCatAdmin=false;
+                setTimeout(function(){ openCatAdmin(); },150);
+                return;
+              }
+              var sl=document.querySelector('.nav-links a[onclick*="schedule"]');
+              showSection('schedule',sl);
+              setTimeout(function(){
+                var p=document.getElementById('admin-panel');
+                if(p){ p.classList.add('show'); renderEditor(); }
+              },200);
             }
-            var schedLink = document.querySelector('.nav-links a[onclick*="schedule"]');
-            showSection('schedule', schedLink);
-            setTimeout(function(){
-              var panel = document.getElementById('admin-panel');
-              if(panel){ panel.classList.add('show'); renderEditor(); }
-            }, 200);
           } else {
-            window._adminOk = false;
+            window._adminOk=false;
           }
         });
-        // Firebase-ből évszak betöltése
-        fetch('https://mooris-web-default-rtdb.europe-west1.firebasedatabase.app/season.json')
-          .then(function(r){return r.json();})
-          .then(function(d){
-            if(d && typeof d==='object'){
-              if(d.override) localStorage.setItem('season-override', d.override);
-              localStorage.setItem('season-enabled', d.enabled!==false?'true':'false');
-            }
-          }).catch(function(){}).finally(function(){
-            if(localStorage.getItem('season-enabled')!=='false') initSeasonalEffects();
-            updateSeasonToggleBtn();
-          });
       });
     });
   });
 })();
 </script>
 
+
+<script>
+fetch('https://decapi.me/twitch/avatar/arv0n')
+  .then(function(r){return r.text();})
+  .then(function(url){
+    var img=document.getElementById('grim-avatar');
+    if(img&&url&&url.startsWith('http')) img.src=url;
+  }).catch(function(){});
+</script>
 </body>
 </html>
