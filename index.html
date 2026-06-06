@@ -1692,6 +1692,7 @@ loadGoals();
 setInterval(loadGoals,300000);
 
 function saveYTCount(){
+  if(!fbAuth.currentUser) return;
   var val=parseInt(document.getElementById('yt-count-input').value)||0;
   localStorage.setItem('mooris-yt-count',val);
   fetch('https://mooris-web-default-rtdb.europe-west1.firebasedatabase.app/yt_count.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(val)}).catch(function(){});
@@ -1999,6 +2000,7 @@ function switchStream(to) {
 
 // ── Menetrend ─────────────────────────────────────
 function save(){
+  if(!fbAuth.currentUser) return;
   localStorage.setItem('mooris-schedule', JSON.stringify(schedule));
   fetch('https://mooris-web-default-rtdb.europe-west1.firebasedatabase.app/schedule.json', {
     method: 'PUT',
@@ -2025,6 +2027,7 @@ function renderDisplay(){
   });
 }
 function renderEditor(){
+  if(!fbAuth.currentUser){ document.getElementById('admin-panel').classList.remove('show'); return; }
   var rows=document.getElementById('editor-rows');
   if(!rows) return;
   rows.innerHTML='';
@@ -2991,7 +2994,7 @@ renderCrew();
 var catAdminOpen = false;
 
 function openCatAdmin(){
-  if(!window._adminOk){ window._pendingCatAdmin = true; openAdmin(); return; }
+  if(!fbAuth.currentUser){ window._pendingCatAdmin = true; openAdmin(); return; }
   document.getElementById('cat-admin-overlay').classList.add('show');
   catAdminOpen = true;
   // YT input feltöltése
@@ -3040,6 +3043,7 @@ document.addEventListener('click', function(e){
 
 // Menetrend szerkesztő a cat admin-ban
 function renderCatEditor(){
+  if(!fbAuth.currentUser){ closeCatAdmin(); return; }
   var container = document.getElementById('cat-editor-rows');
   if(!container) return;
   var days = ['Hétfő','Kedd','Szerda','Csütörtök','Péntek','Szombat','Vasárnap'];
@@ -3086,6 +3090,7 @@ function renderCatEditor(){
 }
 
 function saveCatYT(){
+  if(!fbAuth.currentUser) return;
   var val = parseInt(document.getElementById('cat-yt-input').value)||0;
   localStorage.setItem('mooris-yt-count', val);
   fetch('https://mooris-web-default-rtdb.europe-west1.firebasedatabase.app/yt_count.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(val)}).catch(function(){});
