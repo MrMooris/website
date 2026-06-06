@@ -12,14 +12,15 @@
   <!-- Open Graph (Discord, Facebook, WhatsApp) -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://mrmooris.github.io/website/">
-  <meta property="og:title" content="Mooris — Magyar Streamer">
+  <meta property="og:title" content="Mooris">
   <meta property="og:description" content="Horror, autós játékok, Elden Ring, CS2 és még sok más. Kövess Twitchen, TikTokon, YouTube-on és Kicken!">
   <meta property="og:site_name" content="Mooris">
   <meta property="og:locale" content="hu_HU">
 
   <!-- Twitter / X kártya -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Mooris — Magyar Streamer">
+  <meta property="og:image" content="">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Mooris">
   <meta name="twitter:description" content="Horror, autós játékok, Elden Ring, CS2 és még sok más. Kövess Twitchen, TikTokon, YouTube-on és Kicken!">
   <!-- ═══ SEO META TAGEK VÉGE ════════════════════════════════════════════════ -->
   <meta charset="UTF-8">
@@ -901,6 +902,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
 }
 
 </style>
+
 </head>
 <body>
 <canvas id="particle-canvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1"></canvas>
@@ -1000,7 +1002,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
     <button class="admin-close" onclick="closeAdmin()">×</button>
     <h2 style="margin-bottom:.3rem">Bejelentkezés</h2>
     <p style="margin-bottom:1.2rem">Admin hozzáférés szükséges</p>
-    <input type="text" id="user-input" placeholder="Felhasználónév" autocomplete="off"
+    <input type="email" id="user-input" placeholder="Email" autocomplete="email"
       style="margin-bottom:8px"
       onkeydown="if(event.key==='Enter')document.getElementById('pw-input').focus()">
     <input type="password" id="pw-input" placeholder="Jelszó" onkeydown="if(event.key==='Enter')checkPw()">
@@ -1549,9 +1551,24 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
             </svg></button>
 </footer>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script>
-var ADMIN_USER_HASH = '835d6dc88b708bc646d6db82c853ef4182fabbd4a8de59c213f2b5ab3ae7d9be';
-var ADMIN_HASH = 'e21deaf105b8fae0b33e33daf9e36b238ef3fa3f9eacef516c14423a7f107cc6';
+  const firebaseConfig = {
+    apiKey: "AIzaSyDiOFW5sI9lfexz7XjsMQGFu_e0sKc8p_4",
+    authDomain: "mooris-web.firebaseapp.com",
+    databaseURL: "https://mooris-web-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "mooris-web",
+    storageBucket: "mooris-web.firebasestorage.app",
+    messagingSenderId: "373636498914",
+    appId: "1:373636498914:web:6d352834ca22fcabe7e5bb"
+  };
+  firebase.initializeApp(firebaseConfig);
+  var fbAuth = firebase.auth();
+  var fbDb = firebase.database();
+</script>
+<script>
 var DAYS        = ['Hétfő','Kedd','Szerda','Csütörtök','Péntek','Szombat','Vasárnap'];
 var TWITCH_NAME = 'MrMooris_';
 var YT_CHANNEL_ID = 'UCAvWBPJHbhAlEjf1AaH4kpg';
@@ -1852,6 +1869,28 @@ function removeRoadmapItem(i){
 
 loadRoadmap();
 
+
+// ── FIREBASE AUTH ─────────────────────────────────
+fbAuth.onAuthStateChanged(function(user){
+  if(user){
+    window._adminOk = true;
+    closeAdmin();
+    if(window._pendingCatAdmin){
+      window._pendingCatAdmin = false;
+      setTimeout(function(){ openCatAdmin(); }, 150);
+      return;
+    }
+    var schedLink = document.querySelector('.nav-links a[onclick*="schedule"]');
+    showSection('schedule', schedLink);
+    setTimeout(function(){
+      var panel = document.getElementById('admin-panel');
+      if(panel){ panel.classList.add('show'); renderEditor(); }
+    }, 200);
+  } else {
+    window._adminOk = false;
+  }
+});
+
 function switchSetupTab(tab, el){
   document.querySelectorAll('.setup-panel').forEach(function(p){ p.classList.remove('active'); });
   document.querySelectorAll('.setup-tab').forEach(function(t){ t.classList.remove('active'); });
@@ -2140,41 +2179,23 @@ function checkLive(){
 function openAdmin(){ document.getElementById('admin-overlay').classList.add('show'); setTimeout(function(){document.getElementById('pw-input').focus();},100); }
 function closeAdmin(){ document.getElementById('admin-overlay').classList.remove('show'); document.getElementById('pw-input').value=''; document.getElementById('pw-error').textContent=''; }
 async function checkPw(){
-  var user=document.getElementById('user-input').value;
-  var val=document.getElementById('pw-input').value;
-  if(!user || !val){
-    document.getElementById('pw-error').textContent='Töltsd ki mindkét mezőt!';
-    return;
-  }
-  var enc=new TextEncoder().encode(val);
-  var buf=await crypto.subtle.digest('SHA-256',enc);
-  var hash=Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
-  var uenc=new TextEncoder().encode(user);
-  var ubuf=await crypto.subtle.digest('SHA-256',uenc);
-  var uhash=Array.from(new Uint8Array(ubuf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
-  if(hash===ADMIN_HASH && uhash===ADMIN_USER_HASH){
-    closeAdmin();
-    window._adminOk = true;
-    if(window._pendingCatAdmin){
-      window._pendingCatAdmin = false;
-      setTimeout(function(){ openCatAdmin(); }, 150);
-      return;
-    }
-    // © gombból - automatikusan menetrendre navigál és megnyitja a szerkesztőt
-    closeAdmin();
-    var schedLink = document.querySelector('.nav-links a[onclick*="schedule"]');
-    showSection('schedule', schedLink);
-    setTimeout(function(){
-      var panel = document.getElementById('admin-panel');
-      if(panel){ panel.classList.add('show'); renderEditor(); }
-    }, 200);
-    } else {
-    document.getElementById('pw-error').textContent='Hibás jelszó!';
-    document.getElementById('pw-input').value='';
-    document.getElementById('pw-input').focus();
+  var email = document.getElementById('user-input').value.trim();
+  var password = document.getElementById('pw-input').value;
+  var errEl = document.getElementById('pw-error');
+  if(!email || !password){ if(errEl) errEl.textContent='Töltsd ki mindkét mezőt!'; return; }
+  if(errEl) errEl.textContent='';
+  try {
+    var btn = document.querySelector('.pw-btn');
+    if(btn){ btn.textContent='...'; btn.disabled=true; }
+    await fbAuth.signInWithEmailAndPassword(email, password);
+    // Auth sikeres - onAuthStateChanged kezeli
+  } catch(err) {
+    if(errEl) errEl.textContent = 'Hibás email vagy jelszó!';
+    var btn = document.querySelector('.pw-btn');
+    if(btn){ btn.textContent='Belépés'; btn.disabled=false; }
   }
 }
-function logout(){ var panel=document.getElementById('admin-panel'); if(panel) panel.classList.remove('show'); window._adminOk=false; }
+function logout(){ var panel=document.getElementById('admin-panel'); if(panel) panel.classList.remove('show'); window._adminOk=false; fbAuth.signOut(); }
 
 document.getElementById('footer-trigger').addEventListener('click',function(){
   if(window._adminOk){
@@ -3002,6 +3023,7 @@ function closeCatAdmin(){
 function catLogout(){
   closeCatAdmin();
   logout();
+  fbAuth.signOut();
 }
 
 function switchCatTab(tab, el){
