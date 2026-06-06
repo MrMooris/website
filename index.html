@@ -901,6 +901,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
   #cat-admin-modal{width:98vw!important;padding:1rem!important}
 }
 
+.admin-box input:focus{outline:none!important;border-color:rgba(255,0,51,.5)!important}
 </style>
 
 </head>
@@ -1437,7 +1438,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
           <img src="Mazli.jpg" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.15)">
           <div>
             <div style="font-weight:800;font-size:1rem;color:var(--text)">Mooris</div>
-            <div style="font-size:11px;color:var(--muted2)">Streamer / Editor</div>
+            <div style="font-size:11px;color:var(--muted2)">Streamer / Co-creator</div>
           </div>
         </div>
         
@@ -1450,13 +1451,17 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
       <!-- Grim kártya -->
       <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:1.5rem;display:flex;flex-direction:column;gap:.8rem">
         <div style="display:flex;align-items:center;gap:12px">
-          <div style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:1.4rem">👾</div>
+          <img id="grim-avatar" src="" alt="Grim" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08)">
           <div>
             <div style="font-weight:800;font-size:1rem;color:var(--text)">Grim</div>
-            <div style="font-size:11px;color:var(--muted2)">Streamer / Co-creator</div>
+            <div style="font-size:11px;color:var(--muted2)">Streamer / Editor</div>
           </div>
         </div>
         
+        <a href="https://www.twitch.tv/arv0n" target="_blank" style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#9147ff;text-decoration:none;font-family:'Space Mono',monospace">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
+          twitch.tv/arv0n
+        </a>
       </div>
 
       <!-- Csatorna kártya -->
@@ -2185,16 +2190,17 @@ async function checkPw(){
   var email = document.getElementById('user-input').value.trim();
   var password = document.getElementById('pw-input').value;
   var errEl = document.getElementById('pw-error');
-  if(!email || !password){ if(errEl) errEl.textContent='Töltsd ki mindkét mezőt!'; return; }
+  var btn = document.querySelector('.pw-btn');
+  if(!email || !password){
+    if(errEl) errEl.textContent='Töltsd ki mindkét mezőt!';
+    return;
+  }
   if(errEl) errEl.textContent='';
+  if(btn){ btn.textContent='...'; btn.disabled=true; }
   try {
-    var btn = document.querySelector('.pw-btn');
-    if(btn){ btn.textContent='...'; btn.disabled=true; }
     await fbAuth.signInWithEmailAndPassword(email, password);
-    // Auth sikeres - onAuthStateChanged kezeli
   } catch(err) {
-    if(errEl) errEl.textContent = 'Hibás email vagy jelszó!';
-    var btn = document.querySelector('.pw-btn');
+    if(errEl) errEl.textContent='Hibás email vagy jelszó!';
     if(btn){ btn.textContent='Belépés'; btn.disabled=false; }
   }
 }
@@ -2725,6 +2731,7 @@ function scheduleTabClick(){
 }
 
 var CREW = [
+  { name: 'Grim',        platform: 'twitch', url: 'https://www.twitch.tv/arv0n' },
   { name: 'itsmemyllo', platform: 'twitch', url: 'https://myllo.hu/' },
   { name: 'krypfirst',  platform: 'twitch', url: 'https://www.twitch.tv/krypfirst'  }
 ];
@@ -3313,6 +3320,15 @@ fetch('https://mooris-web-default-rtdb.europe-west1.firebasedatabase.app/season.
 </script>
 <script>
 
+</script>
+<script>
+// Grim Twitch avatar
+fetch('https://decapi.me/twitch/avatar/arv0n')
+  .then(function(r){return r.text();})
+  .then(function(url){
+    var img = document.getElementById('grim-avatar');
+    if(img && url && url.startsWith('http')) img.src = url;
+  }).catch(function(){});
 </script>
 </body>
 </html>
