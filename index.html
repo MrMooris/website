@@ -1556,24 +1556,9 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(1)
             </svg></button>
 </footer>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyDiOFW5sI9lfexz7XjsMQGFu_e0sKc8p_4",
-    authDomain: "mooris-web.firebaseapp.com",
-    databaseURL: "https://mooris-web-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "mooris-web",
-    storageBucket: "mooris-web.firebasestorage.app",
-    messagingSenderId: "373636498914",
-    appId: "1:373636498914:web:6d352834ca22fcabe7e5bb"
-  };
-  firebase.initializeApp(firebaseConfig);
-  var fbAuth = firebase.auth();
-  var fbDb = firebase.database();
-</script>
-<script>
+var fbAuth = null;
+var fbDb = null;
 var DAYS        = ['Hétfő','Kedd','Szerda','Csütörtök','Péntek','Szombat','Vasárnap'];
 var TWITCH_NAME = 'MrMooris_';
 var YT_CHANNEL_ID = 'UCAvWBPJHbhAlEjf1AaH4kpg';
@@ -2766,11 +2751,10 @@ function renderCrew(){
       if(wrap){ var i=document.createElement('img'); i.src=this.src; i.className='crew-avatar'; wrap.replaceWith(i); }
     };
     img.src = 'https://unavatar.io/twitch/'+(s.twitchName||s.name);
-  for(var i=0;i<greetings.length;i++){
-    if(h>=greetings[i][0] && h<greetings[i][1]){ text=greetings[i][2]; break; }
-  }
-  el.textContent = text;
-})();
+  });
+}
+
+renderCrew();
 </script>
 <script>
 // ── NAV GREETING (törlésnél: ezt töröld) ──────────
@@ -3164,18 +3148,7 @@ function saveSeason(){
 }
 
 // Auto-init ha be van kapcsolva
-// Firebase-ből töltjük az évszak beállítást
-fetch('https://mooris-web-default-rtdb.europe-west1.firebasedatabase.app/season.json').then(function(r){return r.json();}).then(function(d){
-  if(d && typeof d === 'object'){
-    if(d.override) localStorage.setItem('season-override', d.override);
-    localStorage.setItem('season-enabled', d.enabled !== false ? 'true' : 'false');
-  }
-}).catch(function(){}).finally(function(){
-  if(localStorage.getItem('season-enabled')!=='false'){
-    initSeasonalEffects();
-  }
-  updateSeasonToggleBtn();
-});
+// Évszak betöltés a Firebase init után történik
 
 </script>
 <script>
@@ -3190,5 +3163,69 @@ fetch('https://decapi.me/twitch/avatar/arv0n')
     if(img && url && url.startsWith('http')) img.src = url;
   }).catch(function(){});
 </script>
+
+<script>
+(function(){
+  function loadScript(src, cb){
+    var s = document.createElement('script');
+    s.src = src;
+    s.onload = cb;
+    s.onerror = function(){ console.warn('Firebase script failed:', src); cb(); };
+    document.head.appendChild(s);
+  }
+  var BASE = 'https://www.gstatic.com/firebasejs/10.12.0/';
+  loadScript(BASE+'firebase-app-compat.js', function(){
+    loadScript(BASE+'firebase-auth-compat.js', function(){
+      loadScript(BASE+'firebase-database-compat.js', function(){
+        var config = {
+          apiKey: "AIzaSyDiOFW5sI9lfexz7XjsMQGFu_e0sKc8p_4",
+          authDomain: "mooris-web.firebaseapp.com",
+          databaseURL: "https://mooris-web-default-rtdb.europe-west1.firebasedatabase.app",
+          projectId: "mooris-web",
+          storageBucket: "mooris-web.firebasestorage.app",
+          messagingSenderId: "373636498914",
+          appId: "1:373636498914:web:6d352834ca22fcabe7e5bb"
+        };
+        if(!firebase.apps.length) firebase.initializeApp(config);
+        fbAuth = firebase.auth();
+        fbDb = firebase.database();
+        // Auth state listener
+        fbAuth.onAuthStateChanged(function(user){
+          if(user){
+            window._adminOk = true;
+            closeAdmin();
+            if(window._pendingCatAdmin){
+              window._pendingCatAdmin = false;
+              setTimeout(function(){ openCatAdmin(); }, 150);
+              return;
+            }
+            var schedLink = document.querySelector('.nav-links a[onclick*="schedule"]');
+            showSection('schedule', schedLink);
+            setTimeout(function(){
+              var panel = document.getElementById('admin-panel');
+              if(panel){ panel.classList.add('show'); renderEditor(); }
+            }, 200);
+          } else {
+            window._adminOk = false;
+          }
+        });
+        // Firebase-ből évszak betöltése
+        fetch('https://mooris-web-default-rtdb.europe-west1.firebasedatabase.app/season.json')
+          .then(function(r){return r.json();})
+          .then(function(d){
+            if(d && typeof d==='object'){
+              if(d.override) localStorage.setItem('season-override', d.override);
+              localStorage.setItem('season-enabled', d.enabled!==false?'true':'false');
+            }
+          }).catch(function(){}).finally(function(){
+            if(localStorage.getItem('season-enabled')!=='false') initSeasonalEffects();
+            updateSeasonToggleBtn();
+          });
+      });
+    });
+  });
+})();
+</script>
+
 </body>
 </html>
